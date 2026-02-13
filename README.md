@@ -1,7 +1,7 @@
 # CLI Timelog App
 
-Tired of terrible user interface timelog applications?
-Started a new company with an even worse time tracking application than you could ever imagine?
+Tired of terrible user interface timelog applications?  
+Started a new company with an even worse time tracking application than you could ever imagine?  
 Tired of having to use your freaking mouse?!
 
 Well - look no further. This CLI Timelog App is your one-way ticket to time efficiency!
