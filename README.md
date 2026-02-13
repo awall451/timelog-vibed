@@ -1,6 +1,6 @@
 # CLI Timelog App
 
-Tired of bad a timelog UI?  
+Tired of bad timelog UI?  
 Started a new company with an even worse time tracking application than you could have ever imagined?  
 Tired of having to use your freaking mouse?!
 
