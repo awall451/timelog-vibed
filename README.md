@@ -15,7 +15,7 @@ and some `bash` functions to source in your `~/.bashrc` file. *That's it!*
 ## Installation and pre-requisites
 
 Before installing, decide first if you want to use the default username and password. 
-The username and password are hard coded, but feel free to change them. However, if you do change the username, 
+The username and password are hard coded in `compose.yml`, but feel free to change them. However, if you do change the username, 
 you will need to modify this username in `timelog_functions.sh`! You can do this with sed easily:
 ```bash
 # ---- Replace <username> with the POSTGRES_USER value set in compose.yml
