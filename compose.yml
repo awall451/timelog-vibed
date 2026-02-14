@@ -1,14 +1,19 @@
 services:
   postgres:
     image: postgres:16
-    container_name: timelog
+    container_name: timelog # ----- Modification of this name will affect functions, so keep it as is!
     restart: unless-stopped
+    # ----- Feel free to change these credentials, but be warned!
+    # ----- Changing these after deploying will have no affect. These need to be changed before initilization!
+    # ----- Modification to POSTGRES_USER and POSTGRES_DB will require modification to timelog_functions.sh!
+    # ----- Unless you are exposing this container to the outside, I would leave this alone :)
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: p@ssw0rd
       POSTGRES_DB: timelog
-    ports:
-      - "5432:5432"
+    # ----- Uncomment the 'ports' section if you want to expose your hosts port for external access.
+    #ports:
+    #  - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
       - ./create-table.sql:/docker-entrypoint-initdb.d/01.create-table.sql
