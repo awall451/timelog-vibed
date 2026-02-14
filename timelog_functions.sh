@@ -118,3 +118,23 @@ VALUES ('$project', '$category', '$description', $hours, DATE '$entry_date');
 EOF
   fi
 }
+
+# ----- CSV Export Function
+tlexport() {
+  today=$(date +%Y-%m-%d)
+  filename="timelog-${today}.csv"
+
+  echo "Exporting entries table to ${filename}..."
+
+  docker exec -i timelog \
+    psql -U admin -d timelog \
+    -c "\copy entries TO STDOUT WITH CSV HEADER" \
+    > "$filename"
+
+  if [[ $? -eq 0 ]]; then
+    echo "Export complete: $filename"
+  else
+    echo "Export failed."
+    return 1
+  fi
+}
