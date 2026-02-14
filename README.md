@@ -75,7 +75,8 @@ The `tlshow` function shows all of your timelog entries on the `entries` table.
 The `tlshow` function also has several subcommands to help filter down to specific types of entries.
 
 ```bash
-dillon@SLB-1H85255ZKY:~/lab/timelog-database$ tlshow .
+ ╭─dillon@garuda in repo: cli-timelog on  main on  (us-west-2) took 0s
+ ╰─λ tlshow .
 Unknown subcommand: .
 Usage:
   tlshow
