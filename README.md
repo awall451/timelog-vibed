@@ -107,12 +107,15 @@ Use `tlshow last` to see the last entry in the table. Useful to make sure the la
 
 ##### tlshow project
 
+Use `tlshow project` to see all entries filtered by a specific project in the project column of the table. Syntax is 
+`tlshow project <project_name>`. Don't forget to wrap the `<project_name>` in quotes if it is more than one word!
+
 ![](.img/tlshow_project.png)
 
 ##### tlshow category
 
 Use `tlshow category` to see all entries filtered by a specific category in the category column of the table. Syntax is 
-`tlshow category <category_name>`.
+`tlshow category <category_name>`. Don't forget to wrap the `<category_name>` in quotes if it is more than one word!
 
 ![](.img/tlshow_category.png)
 
