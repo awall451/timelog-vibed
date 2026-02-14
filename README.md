@@ -48,19 +48,40 @@ by running the SQL statments in `create-table.sql`.
 
 The bash functions steal the show here. They make updating and viewing your timelog a breeze.
 
+### tlupdate
+
+`tlupdate` will be your bread & butter. Use this to submit a time entry for today's date.
+
+![](.img/tlupdate.png)
+
+
+#### tlupdate <date>
+
+Optionally with `tlupdate`, you can pass an arument for a specfic date you want to create an entry for! 
+For example, if you want to submit an entry for Feb 03, 2026 - you can type `tlupdate 2026-02-03`. 
+The syntax does matter here, and your command line will complain if the format is not YYYY-MM-DD (as all dates should be, but I digress).
+
+![](.img/tlupdate_date.png)
+
 ### tlshow
 
 The `tlshow` function shows all of your timelog entries on the `entries` table.
 
+![](.img/tlshow.png)
+
+
 #### tlshow subcommands
 
-The `tlshow` function also has subcommands to help filter down to specific types of entries.
+The `tlshow` function also has several subcommands to help filter down to specific types of entries.
+
 ```bash
 dillon@SLB-1H85255ZKY:~/lab/timelog-database$ tlshow .
 Unknown subcommand: .
 Usage:
   tlshow
+  tlshow last
   tlshow today
+  tlshow yesterday
   tlshow project <projectname>
   tlshow category <categoryname>
 ```
@@ -69,9 +90,31 @@ Usage:
 
 Use `tlshow today` to see only today's entries!
 
+![](.img/tlshow_today.png)
+
+
+##### tlshow yesterday
+
+Use `tlshow yesterday` to see entries for the day before - or in SQL talk, `CURRENT_DATE - INTERVAL '1 DAY'`
+
+![](.img/tlshow_yesterday.png)
+
+##### tlshow last
+
+Use `tlshow last` to see the last entry in the table. Useful to make sure the last entry you just submitted was correct!
+
+![](.img/tlshow_last.png)
+
 ##### tlshow project
 
+![](.img/tlshow_project.png)
+
 ##### tlshow category
+
+Use `tlshow category` to see all entries filtered by a specific category in the category column of the table. Syntax is 
+`tlshow category <category_name>`.
+
+![](.img/tlshow_category.png)
 
 ### timelog
 

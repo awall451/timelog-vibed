@@ -48,7 +48,9 @@ tlshow() {
       echo "Unknown subcommand: $subcommand"
       echo "Usage:"
       echo "  tlshow"
+      echo "  tlshow last"
       echo "  tlshow today"
+      echo "  tlshow yesterday"
       echo "  tlshow project <projectname>"
       echo "  tlshow category <categoryname>"
       return 1
