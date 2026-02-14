@@ -1,6 +1,6 @@
 # CLI Timelog App
 
-Tired of bad timelog UI?  
+Tired of living with an intern timelog project that accidentally became production software?
 Started a new company with an even worse time tracking application than you could have ever imagined?  
 Tired of having to use your freaking mouse?!
 
@@ -118,7 +118,7 @@ Use `tlshow category` to see all entries filtered by a specific category in the 
 
 ### timelog
 
-The first one is a basic alias. The `timelog` alias gives you quick access inside the database 
+The `timelog` alias gives you quick access inside the database 
 to directly run SQL Queries.
 ```bash
 dillon@spartan:/opt/timelog$ timelog
