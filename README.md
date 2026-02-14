@@ -48,18 +48,6 @@ by running the SQL statments in `create-table.sql`.
 
 The bash functions steal the show here. They make updating and viewing your timelog a breeze.
 
-### timelog
-
-The first one is a basic alias. The `timelog` alias gives you quick access inside the database 
-to directly run SQL Queries.
-```bash
-dillon@spartan:/opt/timelog$ timelog
-psql (16.12 (Debian 16.12-1.pgdg13+1))
-Type "help" for help.
-
-timelog=# 
-```
-
 ### tlshow
 
 The `tlshow` function shows all of your timelog entries on the `entries` table.
@@ -85,3 +73,16 @@ Use `tlshow today` to see only today's entries!
 
 ##### tlshow category
 
+### timelog
+
+The first one is a basic alias. The `timelog` alias gives you quick access inside the database 
+to directly run SQL Queries.
+```bash
+dillon@spartan:/opt/timelog$ timelog
+psql (16.12 (Debian 16.12-1.pgdg13+1))
+Type "help" for help.
+
+timelog=#
+```
+
+![Timelog function.](.img/timelog.png)
