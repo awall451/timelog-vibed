@@ -120,6 +120,13 @@ Use `tlshow category` to see all entries filtered by a specific category in the 
 
 ![](.img/tlshow_category.png)
 
+
+### tlexport
+
+Use `tlexport` to export your entire timelog database to a CSV file!
+
+![](.img/tlexport.png)
+
 ### timelog
 
 The `timelog` alias gives you quick access inside the database 
