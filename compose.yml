@@ -4,7 +4,7 @@ services:
     container_name: timelog # ----- Modification of this name will affect functions, so keep it as is!
     restart: unless-stopped
     # ----- Feel free to change these credentials, but be warned!
-    # ----- Changing these after deploying will have no affect. These need to be changed before initilization!
+    # ----- Changing these after deploying will have no effect. These need to be changed before initilization!
     # ----- Modification to POSTGRES_USER and POSTGRES_DB will require modification to timelog_functions.sh!
     # ----- Unless you are exposing this container to the outside, I would leave this alone :)
     environment:
