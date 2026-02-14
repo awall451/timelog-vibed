@@ -125,7 +125,8 @@ Use `tlshow category` to see all entries filtered by a specific category in the 
 The `timelog` alias gives you quick access inside the database 
 to directly run SQL Queries.
 ```bash
-dillon@spartan:/opt/timelog$ timelog
+ ╭─dillon@garuda in repo: cli-timelog on  main on  (us-west-2) took 0s
+ ╰─λ timelog
 psql (16.12 (Debian 16.12-1.pgdg13+1))
 Type "help" for help.
 
