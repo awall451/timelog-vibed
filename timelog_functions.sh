@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-alias timelog='docker exec -it timelog psql -U admin -d timelog'
+alias tlexec='docker exec -it timelog psql -U admin -d timelog'
 
 tlshow() {
   subcommand="$1"
@@ -137,4 +137,61 @@ tlexport() {
     echo "Export failed."
     return 1
   fi
+}
+
+# ----- Help page
+tlhelp() {
+  local BOLD RESET
+  BOLD=$(printf '\033[1m')
+  RESET=$(printf '\033[0m')
+
+  cat <<EOF
+cli-timelog
+Track work entries in a local Postgres timelog database (via Docker).
+
+${BOLD}USAGE${RESET}
+  tlhelp
+  tlshow [subcommand]
+  tlupdate [YYYY-MM-DD]
+  tlexport
+  tlexec
+
+${BOLD}AVAILABLE COMMANDS${RESET}
+  tlhelp      Show this help page
+
+  tlshow      Display entries (all, filtered, or recent)
+              Subcommands:
+                (none)                 Show all entries
+                today                  Show entries for today (CURRENT_DATE)
+                yesterday              Show entries for yesterday
+                last                   Show the most recent entry
+                project <name>         Show entries for a project
+                category <name>        Show entries for a category
+
+  tlupdate    Add a new entry (interactive prompts)
+              Optionally supply the work date:
+                tlupdate               Uses the table default date (CURRENT_DATE)
+                tlupdate YYYY-MM-DD    Sets the entry date explicitly
+
+  tlexport    Export entries table to a dated CSV in the current directory
+              Output: timelog-YYYY-MM-DD.csv
+
+  tlexec      Open an interactive psql session (alias)
+              Runs: docker exec -it timelog psql -U admin -d timelog
+
+${BOLD}EXAMPLES${RESET}
+  tlshow
+  tlshow last
+  tlshow today
+  tlshow yesterday
+  tlshow project "Timelog App"
+  tlshow category "Meeting"
+
+  tlupdate
+  tlupdate 2026-02-06
+
+  tlexport
+  ls timelog-*.csv
+
+EOF
 }

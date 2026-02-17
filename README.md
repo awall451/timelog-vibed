@@ -127,17 +127,17 @@ Use `tlexport` to export your entire timelog database to a CSV file!
 
 ![](.img/tlexport.png)
 
-### timelog
+### tlexec
 
-The `timelog` alias gives you quick access inside the database 
+The `tlexec` alias gives you quick access inside the database 
 to directly run SQL Queries.
 ```bash
  ╭─dillon@garuda in repo: cli-timelog on  main on  (us-west-2) took 0s
- ╰─λ timelog
+ ╰─λ tlexec
 psql (16.12 (Debian 16.12-1.pgdg13+1))
 Type "help" for help.
 
 timelog=#
 ```
 
-![Timelog function.](.img/timelog.png)
+![Timelog function.](.img/tlexec.png)
