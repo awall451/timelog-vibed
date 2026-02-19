@@ -16,7 +16,8 @@ services:
     #  - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-      - ./create-table.sql:/docker-entrypoint-initdb.d/01.create-table.sql
+      - ./conf/create-table.sql:/docker-entrypoint-initdb.d/01.create-table.sql
+      - ./conf/init-timezone.sql:/docker-entrypoint-initdb.d/00.init-timezone.sql
 
 volumes:
   pgdata:
