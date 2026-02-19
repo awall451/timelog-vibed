@@ -75,6 +75,10 @@ tlsum() {
       docker exec timelog psql -U admin -d timelog -tA \
         -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE (date = CURRENT_DATE - INTERVAL '1 DAY');"
       ;;
+    projects )
+      docker exec timelog psql -U admin -d timelog \
+        -c 'SELECT project AS "Project Name", SUM(hours) AS "Hours" FROM entries GROUP BY project ORDER BY "Hours" DESC;'
+      ;;
     project )
       if [[ -z "$1" ]]; then
         echo "Error: project name required"
@@ -84,6 +88,10 @@ tlsum() {
 
       docker exec timelog psql -U admin -d timelog -tA \
         -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE project = '$1';"
+      ;;
+    categories )
+      docker exec timelog psql -U admin -d timelog \
+        -c 'SELECT category AS "Category Name", SUM(hours) AS "Hours" FROM entries GROUP BY category ORDER BY "Hours" DESC;'
       ;;
     category )
       if [[ -z "$1" ]]; then
