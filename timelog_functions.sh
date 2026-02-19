@@ -24,6 +24,10 @@ tlshow() {
       docker exec timelog psql -U admin -d timelog \
         -c "SELECT * FROM entries ORDER BY id DESC LIMIT 1;"
       ;;
+    projects )
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT DISTINCT project FROM entries ORDER BY project;"
+      ;;
     project )
       if [[ -z "$1" ]]; then
         echo "Error: project name required"
@@ -33,6 +37,10 @@ tlshow() {
 
       docker exec timelog psql -U admin -d timelog \
         -c "SELECT * FROM entries WHERE project = '$1';"
+      ;;
+    categories )
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT DISTINCT category FROM entries ORDER BY category;"
       ;;
     category )
       if [[ -z "$1" ]]; then
