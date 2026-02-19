@@ -58,6 +58,56 @@ tlshow() {
   esac
 }
 
+tlsum() {
+  subcommand="$1"
+  shift
+
+  case "$subcommand" in
+    "" )
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries;"
+      ;;
+    today )
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE date = CURRENT_DATE;"
+      ;;
+    yesterday )
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE (date = CURRENT_DATE - INTERVAL '1 DAY');"
+      ;;
+    project )
+      if [[ -z "$1" ]]; then
+        echo "Error: project name required"
+        echo "Usage: tlsum project <projectname>"
+        return 1
+      fi
+
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE project = '$1';"
+      ;;
+    category )
+      if [[ -z "$1" ]]; then
+        echo "Error: category name required"
+        echo "Usage: tlsum category <categoryname>"
+        return 1
+      fi
+
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE category = '$1';"
+      ;;
+    * )
+      echo "Unknown subcommand: $subcommand"
+      echo "Usage:"
+      echo "  tlsum"
+      echo "  tlsum today"
+      echo "  tlsum yesterday"
+      echo "  tlsum project <projectname>"
+      echo "  tlsum category <categoryname>"
+      return 1
+      ;;
+  esac
+}
+
 tlupdate() {
   entry_date="$1"
 
