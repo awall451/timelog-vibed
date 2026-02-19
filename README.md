@@ -74,7 +74,9 @@ help screen with explainations of all functions and subcommands.
 
 ![](.img/tlhelp.png)
 
-Please, forgive me if the image is out of date. This is going to be an ever-evolving project, and "ain't nobody got time for that." Sheesh.
+Please, forgive me if the image is out of date. This is going to be an ever-evolving project, and "ain't nobody got time for that." 
+![](.img/aint-nobody-got-time-for-that-kimberly-wilkins.gif)
+Sheesh.
 
 ## Functions
 
