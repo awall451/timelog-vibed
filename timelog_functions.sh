@@ -109,7 +109,9 @@ tlsum() {
       echo "  tlsum"
       echo "  tlsum today"
       echo "  tlsum yesterday"
+      echo "  tlsum projects"
       echo "  tlsum project <projectname>"
+      echo "  tlsum categories"
       echo "  tlsum category <categoryname>"
       return 1
       ;;
