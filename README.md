@@ -6,6 +6,7 @@
 
 * [How it works](#how-it-works)
 * [Installation and pre-requisites](#installation-and-pre-requisites)
+* [tlhelp](#tlhelp)
 * [Functions](#functions)
   * [tlupdate](#tlupdate)
     * [tlupdate 'date'](#tlupdate-date)
@@ -66,6 +67,14 @@ readlink -f timelog_functions.sh | xargs echo "source $1" >> ~/.bashrc
 When starting the container for the first time, docker will create a local volume called `pgdata`. This 
 is where your database lives on your host, so don't mess it up! First time startup will create the table 
 by running the SQL statments in `create-table.sql`.
+
+## tlhelp
+If you ever get stuck or don't want to sift through this README, just type `tlhelp` in the terminal for the 'man' page. This will printout a 
+help screen with explainations of all functions and subcommands.
+
+![](.img/tlhelp.png)
+
+Please, forgive me if the image is out of date. This is going to be an ever-evolving project, and "ain't nobody got time for that." Sheesh.
 
 ## Functions
 

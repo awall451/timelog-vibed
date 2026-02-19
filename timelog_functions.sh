@@ -59,7 +59,9 @@ tlshow() {
       echo "  tlshow last"
       echo "  tlshow today"
       echo "  tlshow yesterday"
+      echo "  tlshow projects"
       echo "  tlshow project <projectname>"
+      echo "  tlshow categories"
       echo "  tlshow category <categoryname>"
       return 1
       ;;
@@ -220,6 +222,7 @@ Track work entries in a local Postgres timelog database (via Docker).
 ${BOLD}USAGE${RESET}
   tlhelp
   tlshow [subcommand]
+  tlsum [subcommand]
   tlupdate [YYYY-MM-DD]
   tlexport
   tlexec
@@ -233,8 +236,20 @@ ${BOLD}AVAILABLE COMMANDS${RESET}
                 today                  Show entries for today (CURRENT_DATE)
                 yesterday              Show entries for yesterday
                 last                   Show the most recent entry
-                project <name>         Show entries for a project
-                category <name>        Show entries for a category
+                projects               Show list of all distinct projects
+                project <name>         Show entries for a specific project
+                categories             Show list of all distinct categories
+                category <name>        Show entries for a specific category
+
+  tlsum       Display entries (all, filtered, or recent)
+              Subcommands:
+                (none)                 Show total hours for all entries
+                today                  Show total hours of today's entries (CURRENT_DATE)
+                yesterday              Show total hours of yesterday's entries
+                projects               Show total hours per distinct project
+                project <name>         Show total hours for a specific project
+                categories             Show total hours per distinct category
+                category <name>        Show total hours for a specific category
 
   tlupdate    Add a new entry (interactive prompts)
               Optionally supply the work date:
