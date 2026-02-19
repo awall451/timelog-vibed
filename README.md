@@ -8,7 +8,7 @@
 * [Installation and pre-requisites](#installation-and-pre-requisites)
 * [Functions](#functions)
   * [tlupdate](#tlupdate)
-    * [tlupdate <date>](#tlupdate-date)
+    * [tlupdate 'date'](#tlupdate-date)
   * [tlshow](#tlshow)
     * [tlshow subcommands](#tlshow-subcommands)
       * [tlshow today](#tlshow-today)
@@ -78,7 +78,7 @@ The bash functions steal the show here. They make updating and viewing your time
 ![](.img/tlupdate.png)
 
 
-#### tlupdate <date>
+#### tlupdate 'date'
 
 Optionally with `tlupdate`, you can pass an arument for a specfic date you want to create an entry for! 
 For example, if you want to submit an entry for Feb 03, 2026 - you can type `tlupdate 2026-02-03`. 
