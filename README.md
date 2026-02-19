@@ -1,4 +1,27 @@
 # CLI Timelog App
+<details>
+<summary>Table of Contents</summary>
+
+<!-- mtoc-start -->
+
+* [How it works](#how-it-works)
+* [Installation and pre-requisites](#installation-and-pre-requisites)
+* [Functions](#functions)
+  * [tlupdate](#tlupdate)
+    * [tlupdate <date>](#tlupdate-date)
+  * [tlshow](#tlshow)
+    * [tlshow subcommands](#tlshow-subcommands)
+      * [tlshow today](#tlshow-today)
+      * [tlshow yesterday](#tlshow-yesterday)
+      * [tlshow last](#tlshow-last)
+      * [tlshow project](#tlshow-project)
+      * [tlshow category](#tlshow-category)
+  * [tlexport](#tlexport)
+  * [tlexec](#tlexec)
+
+<!-- mtoc-end -->
+
+</details>
 
 Tired of living with an intern timelog project that accidentally became production software?  
 Started a new company with an even worse time tracking application than you could have ever imagined?  
