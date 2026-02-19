@@ -241,7 +241,7 @@ ${BOLD}AVAILABLE COMMANDS${RESET}
                 categories             Show list of all distinct categories
                 category <name>        Show entries for a specific category
 
-  tlsum       Display entries (all, filtered, or recent)
+  tlsum       Display total hours for entries (all, filtered, or recent)
               Subcommands:
                 (none)                 Show total hours for all entries
                 today                  Show total hours of today's entries (CURRENT_DATE)
