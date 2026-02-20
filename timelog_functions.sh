@@ -34,7 +34,6 @@ tlshow() {
         echo "Usage: tlshow project <projectname>"
         return 1
       fi
-
       docker exec timelog psql -U admin -d timelog \
         -c "SELECT * FROM entries WHERE project = '$1';"
       ;;
@@ -48,9 +47,20 @@ tlshow() {
         echo "Usage: tlshow category <categoryname>"
         return 1
       fi
-
       docker exec timelog psql -U admin -d timelog \
         -c "SELECT * FROM entries WHERE category = '$1';"
+      ;;
+    month )
+      if [[ -z "$1" ]] || [[ ! "$1" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+        echo "Error: month required in YYYY-MM format"
+        echo "Usage: tlshow month YYYY-MM"
+        return 1
+      fi
+      docker exec timelog psql -U admin -d timelog \
+        -c "SELECT *
+            FROM entries
+            WHERE date >= date_trunc('month', DATE '$1-01')
+              AND date <  date_trunc('month', DATE '$1-01') + INTERVAL '1 month';"
       ;;
     * )
       echo "Unknown subcommand: $subcommand"
@@ -63,6 +73,7 @@ tlshow() {
       echo "  tlshow project <projectname>"
       echo "  tlshow categories"
       echo "  tlshow category <categoryname>"
+      echo "  tlshow month <YYYY-MM>"
       return 1
       ;;
   esac
@@ -86,8 +97,28 @@ tlsum() {
         -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE (date = CURRENT_DATE - INTERVAL '1 DAY');"
       ;;
     projects )
-      docker exec timelog psql -U admin -d timelog \
-        -c 'SELECT project AS "Project Name", SUM(hours) AS "Hours" FROM entries GROUP BY project ORDER BY "Hours" DESC;'
+      entry_date="$1"
+      # Optional date validation
+      if [[ -n "$entry_date" ]]; then
+        if [[ ! "$entry_date" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+          echo "Error: date must be in YYYY-MM format"
+          echo "Usage: tlsum projects [YYYY-MM]"
+          return 1
+        fi
+        if [[ ! "$entry_date" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+          echo "Error: month required in YYYY-MM format"
+          return 1
+        fi
+      fi
+      if [[ -z "$entry_date" ]]; then
+        # ----- No date provided → let DEFAULT CURRENT_DATE handle it
+        docker exec timelog psql -U admin -d timelog \
+          -c 'SELECT project AS "Project Name", SUM(hours) AS "Hours" FROM entries GROUP BY project ORDER BY "Hours" DESC;'
+      else
+        # ----- Date provided → explicitly set it
+        docker exec timelog psql -U admin -d timelog \
+          -c "SELECT project AS \"Project Name\", SUM(hours) AS \"Hours\" FROM entries WHERE date >= DATE '${entry_date}-01' AND date <  DATE '${entry_date}-01' + INTERVAL '1 month' GROUP BY project ORDER BY \"Hours\" DESC;"
+      fi
       ;;
     project )
       if [[ -z "$1" ]]; then
@@ -95,13 +126,32 @@ tlsum() {
         echo "Usage: tlsum project <projectname>"
         return 1
       fi
-
       docker exec timelog psql -U admin -d timelog -tA \
         -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE project = '$1';"
       ;;
     categories )
-      docker exec timelog psql -U admin -d timelog \
-        -c 'SELECT category AS "Category Name", SUM(hours) AS "Hours" FROM entries GROUP BY category ORDER BY "Hours" DESC;'
+      entry_date="$1"
+      # Optional date validation
+      if [[ -n "$entry_date" ]]; then
+        if [[ ! "$entry_date" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+          echo "Error: date must be in YYYY-MM format"
+          echo "Usage: tlsum categories [YYYY-MM]"
+          return 1
+        fi
+        if [[ ! "$entry_date" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+          echo "Error: month required in YYYY-MM format"
+          return 1
+        fi
+      fi
+      if [[ -z "$entry_date" ]]; then
+        # ----- No date provided → let DEFAULT CURRENT_DATE handle it
+        docker exec timelog psql -U admin -d timelog \
+          -c 'SELECT category AS "Category Name", SUM(hours) AS "Hours" FROM entries GROUP BY category ORDER BY "Hours" DESC;'
+      else
+        # ----- Date provided → explicitly set it
+        docker exec timelog psql -U admin -d timelog \
+          -c "SELECT category AS \"Category Name\", SUM(hours) AS \"Hours\" FROM entries WHERE date >= DATE '${entry_date}-01' AND date <  DATE '${entry_date}-01' + INTERVAL '1 month' GROUP BY category ORDER BY \"Hours\" DESC;"
+      fi
       ;;
     category )
       if [[ -z "$1" ]]; then
@@ -109,9 +159,20 @@ tlsum() {
         echo "Usage: tlsum category <categoryname>"
         return 1
       fi
-
       docker exec timelog psql -U admin -d timelog -tA \
         -c "SELECT 'Total hours: ' || SUM(hours) AS result FROM entries WHERE category = '$1';"
+      ;;
+    month )
+      if [[ -z "$1" ]] || [[ ! "$1" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+        echo "Error: month required in YYYY-MM format"
+        echo "Usage: tlsum month YYYY-MM"
+        return 1
+      fi
+      docker exec timelog psql -U admin -d timelog -tA \
+        -c "SELECT 'Total hours: ' || COALESCE(SUM(hours),0) AS result
+            FROM entries
+            WHERE date >= date_trunc('month', DATE '$1-01')
+              AND date <  date_trunc('month', DATE '$1-01') + INTERVAL '1 month';"
       ;;
     * )
       echo "Unknown subcommand: $subcommand"
@@ -119,10 +180,11 @@ tlsum() {
       echo "  tlsum"
       echo "  tlsum today"
       echo "  tlsum yesterday"
-      echo "  tlsum projects"
+      echo "  tlsum projects [YYYY-MM]"
       echo "  tlsum project <projectname>"
-      echo "  tlsum categories"
+      echo "  tlsum categories [YYYY-MM]"
       echo "  tlsum category <categoryname>"
+      echo "  tlsum month <YYYY-MM>"
       return 1
       ;;
   esac
@@ -222,7 +284,7 @@ Track work entries in a local Postgres timelog database (via Docker).
 ${BOLD}USAGE${RESET}
   tlhelp
   tlshow [subcommand]
-  tlsum [subcommand]
+  tlsum [subcommand] [YYYY-MM]
   tlupdate [YYYY-MM-DD]
   tlexport
   tlexec
@@ -236,6 +298,7 @@ ${BOLD}AVAILABLE COMMANDS${RESET}
                 today                  Show entries for today (CURRENT_DATE)
                 yesterday              Show entries for yesterday
                 last                   Show the most recent entry
+                month <YYYY-MM>        Show all entries for a specific month
                 projects               Show list of all distinct projects
                 project <name>         Show entries for a specific project
                 categories             Show list of all distinct categories
@@ -246,15 +309,16 @@ ${BOLD}AVAILABLE COMMANDS${RESET}
                 (none)                 Show total hours for all entries
                 today                  Show total hours of today's entries (CURRENT_DATE)
                 yesterday              Show total hours of yesterday's entries
-                projects               Show total hours per distinct project
+                month <YYYY-MM>        Show total hours for a specific month
+                projects [YYYY-MM]     Show total hours per distinct project
                 project <name>         Show total hours for a specific project
-                categories             Show total hours per distinct category
+                categories [YYYY-MM]   Show total hours per distinct category
                 category <name>        Show total hours for a specific category
 
   tlupdate    Add a new entry (interactive prompts)
               Optionally supply the work date:
                 tlupdate               Uses the table default date (CURRENT_DATE)
-                tlupdate YYYY-MM-DD    Sets the entry date explicitly
+                tlupdate [YYYY-MM-DD]  Sets the entry date explicitly
 
   tlexport    Export entries table to a dated CSV in the current directory
               Output: timelog-YYYY-MM-DD.csv
