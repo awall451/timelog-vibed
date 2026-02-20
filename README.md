@@ -11,24 +11,22 @@
   * [`tlupdate`](#tlupdate)
     * [`tlupdate [YYYY-MM-DD]`](#tlupdate-yyyy-mm-dd)
   * [`tlshow`](#tlshow)
-    * [`tlshow` subcommands](#tlshow-subcommands)
-      * [`tlshow today`](#tlshow-today)
-      * [`tlshow yesterday`](#tlshow-yesterday)
-      * [`tlshow last`](#tlshow-last)
-      * [`tlshow projects`](#tlshow-projects)
-      * [`tlshow project <project_name>`](#tlshow-project-project_name)
-      * [`tlshow categories`](#tlshow-categories)
-      * [`tlshow category <category_name>`](#tlshow-category-category_name)
-      * [`tlshow month <YYYY-MM>`](#tlshow-month-yyyy-mm)
+    * [`tlshow today`](#tlshow-today)
+    * [`tlshow yesterday`](#tlshow-yesterday)
+    * [`tlshow last`](#tlshow-last)
+    * [`tlshow projects`](#tlshow-projects)
+    * [`tlshow project <project_name>`](#tlshow-project-project_name)
+    * [`tlshow categories`](#tlshow-categories)
+    * [`tlshow category <category_name>`](#tlshow-category-category_name)
+    * [`tlshow month <YYYY-MM>`](#tlshow-month-yyyy-mm)
   * [`tlsum`](#tlsum)
-    * [`tlsum` subcommands](#tlsum-subcommands)
-      * [`tlsum today`](#tlsum-today)
-      * [`tlsum yesterday`](#tlsum-yesterday)
-      * [`tlsum projects [YYYY-MM]`](#tlsum-projects-yyyy-mm)
-      * [`tlsum project <project_name>`](#tlsum-project-project_name)
-      * [`tlsum categories [YYYY-MM]`](#tlsum-categories-yyyy-mm)
-      * [`tlsum category <category_name>`](#tlsum-category-category_name)
-      * [`tlsum month <YYYY-MM>`](#tlsum-month-yyyy-mm)
+    * [`tlsum today`](#tlsum-today)
+    * [`tlsum yesterday`](#tlsum-yesterday)
+    * [`tlsum projects [YYYY-MM]`](#tlsum-projects-yyyy-mm)
+    * [`tlsum project <project_name>`](#tlsum-project-project_name)
+    * [`tlsum categories [YYYY-MM]`](#tlsum-categories-yyyy-mm)
+    * [`tlsum category <category_name>`](#tlsum-category-category_name)
+    * [`tlsum month <YYYY-MM>`](#tlsum-month-yyyy-mm)
   * [`tlexport`](#tlexport)
   * [`tlexec`](#tlexec)
 
@@ -118,8 +116,6 @@ The `tlshow` function shows all of your timelog entries on the `entries` table.
 ![](.img/tlshow.png)
 
 
-#### `tlshow` subcommands
-
 The `tlshow` function also has several subcommands to help filter down to specific types of entries.
 
 ```bash
@@ -135,26 +131,26 @@ Usage:
   tlshow category <categoryname>
 ```
 
-##### `tlshow today`
+#### `tlshow today`
 
 Use `tlshow today` to see only today's entries!
 
 ![](.img/tlshow_today.png)
 
 
-##### `tlshow yesterday`
+#### `tlshow yesterday`
 
 Use `tlshow yesterday` to see entries for the day before - or in SQL talk, `CURRENT_DATE - INTERVAL '1 DAY'`
 
 ![](.img/tlshow_yesterday.png)
 
-##### `tlshow last`
+#### `tlshow last`
 
 Use `tlshow last` to see the last entry in the table. Useful to make sure the last entry you just submitted was correct!
 
 ![](.img/tlshow_last.png)
 
-##### `tlshow projects`
+#### `tlshow projects`
 
 Use `tlshow projects` to see a list of all projects in the entries table. 
 
@@ -168,14 +164,14 @@ Studio Ops
 Studio Website
 ```
 
-##### `tlshow project <project_name>`
+#### `tlshow project <project_name>`
 
 Use `tlshow project` to see all entries filtered by a specific project in the project column of the table. Syntax is 
 `tlshow project <project_name>`. Don't forget to wrap the `<project_name>` in quotes if it is more than one word!
 
 ![](.img/tlshow_project.png)
 
-##### `tlshow categories`
+#### `tlshow categories`
 
 Use `tlshow categories` to see a list of all categories in the entries table. 
 
@@ -196,14 +192,14 @@ Optimization
 Testing
 ```
 
-##### `tlshow category <category_name>`
+#### `tlshow category <category_name>`
 
 Use `tlshow category` to see all entries filtered by a specific category in the category column of the table. Syntax is 
 `tlshow category <category_name>`. Don't forget to wrap the `<category_name>` in quotes if it is more than one word!
 
 ![](.img/tlshow_category.png)
 
-##### `tlshow month <YYYY-MM>`
+#### `tlshow month <YYYY-MM>`
 
 Use `tlshow month` to see all entries filtered by the provided month. Syntax is 
 `tlshow month <YYYY-MM>`. 
@@ -215,9 +211,6 @@ Use `tlshow month` to see all entries filtered by the provided month. Syntax is
 The `tlsum` function shows the total sum of hours for all timelog entries on the `entries` table.
 
 ![](.img/tlsum.png)
-
-
-#### `tlsum` subcommands
 
 The `tlsum` function also has several subcommands to filter down what sum you are looking to achieve.
 
@@ -236,7 +229,7 @@ Usage:
   tlsum month <YYYY-MM>
 ```
 
-##### `tlsum today`
+#### `tlsum today`
 
 Use `tlsum today` to see only the sum of today's entries! This is helpful when you are filling out timelog for the day, and are trying to hit your 8 
 hours without having to do all the math in your head (or on your fingers!).
@@ -247,7 +240,7 @@ hours without having to do all the math in your head (or on your fingers!).
 Total hours: 1.00
 ```
 
-##### `tlsum yesterday`
+#### `tlsum yesterday`
 
 Use `tlsum yesterday` to see the sum of all entries for the day before - or in SQL talk, `CURRENT_DATE - INTERVAL '1 DAY'`
 
@@ -257,7 +250,7 @@ Use `tlsum yesterday` to see the sum of all entries for the day before - or in S
 Total hours: 4.00
 ```
 
-##### `tlsum projects [YYYY-MM]`
+#### `tlsum projects [YYYY-MM]`
 
 Use `tlsum projects` to see the sum of hours you have in each distinct project. 
 This will help give you full perspective of what projects your time is going into. 
@@ -265,7 +258,7 @@ Optionally - pass the year and month (YYYY-MM) as a second argumet to see only t
 
 ![](.img/tlsum_projects.png)
 
-##### `tlsum project <project_name>`
+#### `tlsum project <project_name>`
 
 Use `tlsum project` to see the sum of all hours for a specific project name. Syntax is 
 `tlsum project <project_name>`. Don't forget to wrap the `<project_name>` in quotes if it is more than one word!
@@ -276,7 +269,7 @@ Use `tlsum project` to see the sum of all hours for a specific project name. Syn
 Total hours: 54.50
 ```
 
-##### `tlsum categories [YYYY-MM]`
+#### `tlsum categories [YYYY-MM]`
 
 Use `tlsum categories` to see the sum of all hours for each distinct category. 
 This will help give you full perspective of what categories your time is going into. 
@@ -284,7 +277,7 @@ Optionally - pass the year and month (YYYY-MM) as a second argumet to see only t
 
 ![](.img/tlsum_categories.png)
 
-##### `tlsum category <category_name>`
+#### `tlsum category <category_name>`
 
 Use `tlsum category` to see the sum of all hours for a specific category. Syntax is 
 `tlsum category <category_name>`. Don't forget to wrap the `<category_name>` in quotes if it is more than one word!
@@ -295,7 +288,7 @@ Use `tlsum category` to see the sum of all hours for a specific category. Syntax
 Total hours: 4.00
 ```
 
-##### `tlsum month <YYYY-MM>`
+#### `tlsum month <YYYY-MM>`
 
 Use `tlsum month` to see the sum of all hours filtered by the provided month. Syntax is 
 `tlsum month <YYYY-MM>`. 
