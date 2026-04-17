@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
-# Source this file to get tlstart / tlstop dev helpers
+# Source this file to get tlstart / tlstop and CLI helpers
 # Usage: source /path/to/dev.sh
 
 _TIMELOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 tlstart() {
-    # Kill anything already on 8888
-    kill "$(lsof -ti:8888)" 2>/dev/null
-    tlserve &> /tmp/tlserve.log &
-    echo $! > /tmp/tlserve.pid
-    echo "API started on http://localhost:8888 (logs: /tmp/tlserve.log)"
-    cd "$_TIMELOG_DIR/frontend" && npm run dev
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" up --build -d
+    echo "Timelog running at http://localhost:3000"
+    echo "API available at  http://localhost:8888"
 }
 
 tlstop() {
-    if [[ -f /tmp/tlserve.pid ]]; then
-        kill "$(cat /tmp/tlserve.pid)" 2>/dev/null && echo "API stopped"
-        rm /tmp/tlserve.pid
-    else
-        kill "$(lsof -ti:8888)" 2>/dev/null && echo "API stopped"
-    fi
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" down
 }
+
+# CLI wrappers — run commands inside the API container
+tlshow()   { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlshow "$@"; }
+tlsum()    { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlsum "$@"; }
+tlexport() { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlexport "$@"; }
+tlhelp()   { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlhelp "$@"; }
+tlupdate() { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec -it api tlupdate "$@"; }
