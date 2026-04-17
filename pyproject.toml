@@ -9,6 +9,8 @@ requires-python = ">=3.11"
 dependencies = [
     "click>=8.0",
     "tabulate>=0.9",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
 ]
 
 [tool.setuptools.packages.find]
@@ -20,3 +22,4 @@ tlsum    = "timelog.cli.summary:summary"
 tlupdate = "timelog.cli.update:update"
 tlexport = "timelog.cli.export:export"
 tlhelp   = "timelog.cli:help_cmd"
+tlserve  = "timelog.api:run"
