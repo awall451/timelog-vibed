@@ -1,7 +1,11 @@
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path.home() / ".local" / "share" / "timelog" / "timelog.db"
+DB_PATH = Path(os.environ.get(
+    "TIMELOG_DB",
+    str(Path.home() / ".local" / "share" / "timelog" / "timelog.db")
+))
 
 
 def get_connection() -> sqlite3.Connection:
