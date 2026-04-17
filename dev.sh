@@ -17,6 +17,11 @@ tlstop() {
 # CLI wrappers — run commands inside the API container
 tlshow()   { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlshow "$@"; }
 tlsum()    { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlsum "$@"; }
-tlexport() { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlexport "$@"; }
+tlexport() {
+    local filename="timelog-$(date +%Y-%m-%d).csv"
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlexport
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" cp "api:/app/$filename" "./$filename"
+    echo "Saved to $(pwd)/$filename"
+}
 tlhelp()   { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlhelp "$@"; }
 tlupdate() { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec -it api tlupdate "$@"; }
