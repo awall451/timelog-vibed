@@ -1,4 +1,5 @@
-# CLI Timelog App
+# 🕐 CLI Timelog App
+
 <details>
 <summary>Table of Contents</summary>
 
@@ -28,7 +29,6 @@
     * [`tlsum category <category_name>`](#tlsum-category-category_name)
     * [`tlsum month <YYYY-MM>`](#tlsum-month-yyyy-mm)
   * [`tlexport`](#tlexport)
-  * [`tlexec`](#tlexec)
 
 <!-- mtoc-end -->
 
@@ -42,49 +42,31 @@ Well - look no further. This CLI Timelog App is your one-way ticket to time effi
 
 ## How it works
 
-This application is very basic, and designed to run locally on your system in a docker container! 
-It will work in any Linux, Mac, or Windows (WSL2) environment. There is a single PostgreSQL container, 
-and some `bash` functions to source in your `~/.bashrc` file. *That's it!* 
+This application runs entirely locally using Python and SQLite — no Docker, no server, nothing to manage.
+A single SQLite database file stores all your entries at `~/.local/share/timelog/timelog.db`, created automatically on first use.
+Commands are installed globally via [pipx](https://pipx.pypa.io) and available anywhere in your terminal. *That's it!*
 
 ## Installation and pre-requisites
 
-Before installing, decide first if you want to use the default username and password. 
-The username and password are hard coded in `compose.yml`, but feel free to change them. However, if you do change the username, 
-you will need to modify this username in `timelog_functions.sh`! You can do this with sed easily:
-```bash
-# ---- Replace <username> with the POSTGRES_USER value set in compose.yml
-sed -i 's/admin/<username>/g' timelog_functions.sh
-```
-
 Pre-requisites:
-* Docker
-* Docker compose
+* Python 3.11+
+* [pipx](https://pipx.pypa.io)
 
 To install:
-* Clone this repository to your local filesystem.
-* Add functions to your `~/.bashrc` (run this command from within the repo directory, or give full path)
 ```bash
-readlink -f timelog_functions.sh | xargs echo "source $1" >> ~/.bashrc
-
-# ----- Re-source your bashrc for functions to work in your current shell
-. ~/.bashrc
+pipx install --editable /path/to/this/repo
 ```
-* Modify username & password if desired (mentioned above)
-* Run `docker compose up -d`
 
-*That's it!*
-
-When starting the container for the first time, docker will create a local volume called `pgdata`. This 
-is where your database lives on your host, so don't mess it up! First time startup will create the table 
-by running the SQL statments in `create-table.sql`.
+That's it! All commands (`tlshow`, `tlsum`, `tlupdate`, `tlexport`, `tlhelp`) are immediately available globally.
+Your database is created automatically at `~/.local/share/timelog/timelog.db` on first use.
 
 ## `tlhelp`
-If you ever get stuck or don't want to sift through this README, just type `tlhelp` in the terminal for the 'man' page. This will printout a 
-help screen with explainations of all functions and subcommands.
+
+If you ever get stuck, just type `tlhelp` in the terminal for the built-in reference page. It prints a help screen with explanations of all functions and subcommands.
 
 ![](.img/tlhelp.png)
 
-Please, forgive me if the image is out of date. This is going to be an ever-evolving project, and "ain't nobody got time for that." 
+Please, forgive me if the image is out of date. This is going to be an ever-evolving project, and "ain't nobody got time for that."
 
 ![](.img/aint-nobody-got-time-for-that-kimberly-wilkins.gif)
 
@@ -92,43 +74,47 @@ Sheesh.
 
 ## Functions
 
-The bash functions steal the show here. They make updating and viewing your timelog a breeze.
+The CLI commands make updating and viewing your timelog a breeze.
 
 ### `tlupdate`
 
-`tlupdate` will be your bread & butter. Use this to submit a time entry for today's date.
+`tlupdate` will be your bread & butter. Use this to submit a time entry for today's date. It walks you through interactive prompts for project, category, description, and hours.
 
 ![](.img/tlupdate.png)
 
-
 #### `tlupdate [YYYY-MM-DD]`
 
-Optionally with `tlupdate`, you can pass an arument for a specfic date you want to create an entry for! 
-For example, if you want to submit an entry for Feb 03, 2026 - you can type `tlupdate 2026-02-03`. 
-The syntax does matter here, and your command line will complain if the format is not YYYY-MM-DD (as all dates should be, but I digress).
+Optionally pass a date argument to create an entry for a specific day. For example, to submit an entry for Feb 03, 2026:
+
+```bash
+tlupdate 2026-02-03
+```
+
+The format must be `YYYY-MM-DD` (as all dates should be, but I digress).
 
 ![](.img/tlupdate_date.png)
 
 ### `tlshow`
 
-The `tlshow` function shows all of your timelog entries on the `entries` table.
+The `tlshow` function shows all of your timelog entries.
 
 ![](.img/tlshow.png)
-
 
 The `tlshow` function also has several subcommands to help filter down to specific types of entries.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main on  (us-west-2) took 0s
- ╰─λ tlshow .
+tlshow .
 Unknown subcommand: .
-Usage:
-  tlshow
-  tlshow last
-  tlshow today
-  tlshow yesterday
-  tlshow project <projectname>
-  tlshow category <categoryname>
+Usage: tlshow [OPTIONS] COMMAND [ARGS]...
+Commands:
+  categories  List all distinct categories.
+  category    Show entries for a specific category.
+  last        Show the most recent entry.
+  month       Show entries for YYYY-MM.
+  project     Show entries for a specific project.
+  projects    List all distinct projects.
+  today       Show today's entries.
+  yesterday   Show yesterday's entries.
 ```
 
 #### `tlshow today`
@@ -137,26 +123,24 @@ Use `tlshow today` to see only today's entries!
 
 ![](.img/tlshow_today.png)
 
-
 #### `tlshow yesterday`
 
-Use `tlshow yesterday` to see entries for the day before - or in SQL talk, `CURRENT_DATE - INTERVAL '1 DAY'`
+Use `tlshow yesterday` to see entries for the day before.
 
 ![](.img/tlshow_yesterday.png)
 
 #### `tlshow last`
 
-Use `tlshow last` to see the last entry in the table. Useful to make sure the last entry you just submitted was correct!
+Use `tlshow last` to see the last entry in the table. Useful to verify the entry you just submitted was correct!
 
 ![](.img/tlshow_last.png)
 
 #### `tlshow projects`
 
-Use `tlshow projects` to see a list of all projects in the entries table. 
+Use `tlshow projects` to see a list of all projects in the entries table.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$] on  (us-west-2) took 0s
- ╰─λ tlshow projects
+tlshow projects
 Nebula Kart
 Personal Growth
 Starfall Odyssey
@@ -166,18 +150,20 @@ Studio Website
 
 #### `tlshow project <project_name>`
 
-Use `tlshow project` to see all entries filtered by a specific project in the project column of the table. Syntax is 
-`tlshow project <project_name>`. Don't forget to wrap the `<project_name>` in quotes if it is more than one word!
+Use `tlshow project` to see all entries filtered by a specific project. Don't forget to wrap `<project_name>` in quotes if it is more than one word!
+
+```bash
+tlshow project "Nebula Kart"
+```
 
 ![](.img/tlshow_project.png)
 
 #### `tlshow categories`
 
-Use `tlshow categories` to see a list of all categories in the entries table. 
+Use `tlshow categories` to see a list of all categories in the entries table.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$] on  (us-west-2) took 0s
- ╰─λ tlshow categories
+tlshow categories
 Audio
 Bugfixing
 CI/CD
@@ -194,128 +180,117 @@ Testing
 
 #### `tlshow category <category_name>`
 
-Use `tlshow category` to see all entries filtered by a specific category in the category column of the table. Syntax is 
-`tlshow category <category_name>`. Don't forget to wrap the `<category_name>` in quotes if it is more than one word!
+Use `tlshow category` to see all entries filtered by a specific category. Don't forget to wrap `<category_name>` in quotes if it is more than one word!
+
+```bash
+tlshow category "Code Review"
+```
 
 ![](.img/tlshow_category.png)
 
 #### `tlshow month <YYYY-MM>`
 
-Use `tlshow month` to see all entries filtered by the provided month. Syntax is 
-`tlshow month <YYYY-MM>`. 
+Use `tlshow month` to see all entries filtered by the provided month.
+
+```bash
+tlshow month 2026-01
+```
 
 ![](.img/tlshow_month.png)
 
 ### `tlsum`
 
-The `tlsum` function shows the total sum of hours for all timelog entries on the `entries` table.
+The `tlsum` function shows the total sum of hours for all timelog entries.
 
 ![](.img/tlsum.png)
 
-The `tlsum` function also has several subcommands to filter down what sum you are looking to achieve.
+The `tlsum` function also has several subcommands to filter down what sum you are looking for.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$] on  (us-west-2) took 0s
-[🔴] × tlsum .
+tlsum .
 Unknown subcommand: .
-Usage:
-  tlsum
-  tlsum today
-  tlsum yesterday
-  tlsum projects [YYYY-MM]
-  tlsum project <projectname>
-  tlsum categories [YYYY-MM]
-  tlsum category <categoryname>
-  tlsum month <YYYY-MM>
+Usage: tlsum [OPTIONS] COMMAND [ARGS]...
+Commands:
+  categories  Total hours per category, optionally filtered to YYYY-MM.
+  category    Total hours for a specific category.
+  month       Total hours for YYYY-MM.
+  project     Total hours for a specific project.
+  projects    Total hours per project, optionally filtered to YYYY-MM.
+  today       Total hours for today.
+  yesterday   Total hours for yesterday.
 ```
 
 #### `tlsum today`
 
-Use `tlsum today` to see only the sum of today's entries! This is helpful when you are filling out timelog for the day, and are trying to hit your 8 
-hours without having to do all the math in your head (or on your fingers!).
+Use `tlsum today` to see the total of today's entries. Helpful when filling out your timelog and trying to hit 8 hours without doing math in your head (or on your fingers!).
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$!?] on  (us-west-2) took 0s
- ╰─λ tlsum today
+tlsum today
 Total hours: 1.00
 ```
 
 #### `tlsum yesterday`
 
-Use `tlsum yesterday` to see the sum of all entries for the day before - or in SQL talk, `CURRENT_DATE - INTERVAL '1 DAY'`
+Use `tlsum yesterday` to see the sum of all entries for the day before.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$!?] on  (us-west-2) took 0s
- ╰─λ tlsum yesterday
+tlsum yesterday
 Total hours: 4.00
 ```
 
 #### `tlsum projects [YYYY-MM]`
 
-Use `tlsum projects` to see the sum of hours you have in each distinct project. 
-This will help give you full perspective of what projects your time is going into. 
-Optionally - pass the year and month (YYYY-MM) as a second argumet to see only the sum of that project for a specific month.
+Use `tlsum projects` to see the sum of hours per distinct project.
+Optionally pass a month as a second argument to filter to a specific month.
 
 ![](.img/tlsum_projects.png)
 
 #### `tlsum project <project_name>`
 
-Use `tlsum project` to see the sum of all hours for a specific project name. Syntax is 
-`tlsum project <project_name>`. Don't forget to wrap the `<project_name>` in quotes if it is more than one word!
+Use `tlsum project` to see the total hours for a specific project. Don't forget quotes for multi-word names!
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$!?] on  (us-west-2) 
-[🧱] × tlsum project 'Nebula Kart'
+tlsum project 'Nebula Kart'
 Total hours: 54.50
 ```
 
 #### `tlsum categories [YYYY-MM]`
 
-Use `tlsum categories` to see the sum of all hours for each distinct category. 
-This will help give you full perspective of what categories your time is going into. 
-Optionally - pass the year and month (YYYY-MM) as a second argumet to see only the sum of that category for a specific month.
+Use `tlsum categories` to see the sum of hours per distinct category.
+Optionally pass a month argument to filter to a specific month.
 
 ![](.img/tlsum_categories.png)
 
 #### `tlsum category <category_name>`
 
-Use `tlsum category` to see the sum of all hours for a specific category. Syntax is 
-`tlsum category <category_name>`. Don't forget to wrap the `<category_name>` in quotes if it is more than one word!
+Use `tlsum category` to see the total hours for a specific category.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$!?] on  (us-west-2) took 0s
- ╰─λ tlsum category 'Code Review'
+tlsum category 'Code Review'
 Total hours: 4.00
 ```
 
 #### `tlsum month <YYYY-MM>`
 
-Use `tlsum month` to see the sum of all hours filtered by the provided month. Syntax is 
-`tlsum month <YYYY-MM>`. 
+Use `tlsum month` to see the total hours for a specific month.
 
 ```bash
- ╭─dillon@garuda in repo: cli-timelog on  main [$!?] on  (us-west-2) took 0s
- ╰─λ tlsum month 2026-01
+tlsum month 2026-01
 Total hours: 47.50
 ```
 
 ### `tlexport`
 
-Use `tlexport` to export your entire timelog database to a CSV file!
+Use `tlexport` to export your entire timelog database to a CSV file in the current directory.
+
+```bash
+tlexport
+Exporting entries to timelog-2026-04-16.csv...
+Export complete: timelog-2026-04-16.csv
+```
 
 ![](.img/tlexport.png)
 
-### `tlexec`
+## Database
 
-The `tlexec` alias gives you quick access inside the database 
-to directly run SQL Queries.
-```bash
- ╭─dillon@garuda in repo: cli-timelog on  main on  (us-west-2) took 0s
- ╰─λ tlexec
-psql (16.12 (Debian 16.12-1.pgdg13+1))
-Type "help" for help.
-
-timelog=#
-```
-
-![Timelog function.](.img/tlexec.png)
+Your data lives at `~/.local/share/timelog/timelog.db` — a plain SQLite file. Back it up like any other file. You can open it directly with any SQLite client if you ever need raw access.

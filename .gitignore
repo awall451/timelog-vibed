@@ -4,3 +4,10 @@ pgdata
 backups
 *bak*
 *.csv
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
