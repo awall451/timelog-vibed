@@ -42,23 +42,46 @@ Well - look no further. This CLI Timelog App is your one-way ticket to time effi
 
 ## How it works
 
-This application runs entirely locally using Python and SQLite — no Docker, no server, nothing to manage.
-A single SQLite database file stores all your entries at `~/.local/share/timelog/timelog.db`, created automatically on first use.
-Commands are installed globally via [pipx](https://pipx.pypa.io) and available anywhere in your terminal. *That's it!*
+This application runs entirely locally in Docker. Two containers — a Python/FastAPI backend and a SvelteKit frontend — are managed by Docker Compose. Your data lives in a SQLite file at `./data/timelog.db`, bind-mounted from your host so it's always accessible and easy to back up.
+
+CLI commands (`tlshow`, `tlsum`, etc.) are available as shell functions that forward into the API container — no separate install required.
 
 ## Installation and pre-requisites
 
 Pre-requisites:
-* Python 3.11+
-* [pipx](https://pipx.pypa.io)
+* Docker + Docker Compose
+* Git
 
-To install:
+**1. Clone the repo:**
 ```bash
-pipx install --editable /path/to/this/repo
+git clone https://github.com/awall451/timelog-vibed.git
+cd timelog-vibed
 ```
 
-That's it! All commands (`tlshow`, `tlsum`, `tlupdate`, `tlexport`, `tlhelp`) are immediately available globally.
-Your database is created automatically at `~/.local/share/timelog/timelog.db` on first use.
+**2. Source the dev helpers:**
+```bash
+source dev.sh
+```
+
+Add this to your `~/.bashrc` to make `tlstart`, `tlstop`, and all `tl*` commands available in every shell.
+
+**3. Start the app:**
+```bash
+tlstart
+```
+
+That's it! Docker builds and starts both containers on first run.
+
+| Service  | URL                      |
+|----------|--------------------------|
+| Frontend | http://localhost:3000    |
+| API      | http://localhost:8888    |
+
+```bash
+tlstop   # stop everything
+```
+
+Your database is created automatically at `./data/timelog.db` on first run.
 
 ## `tlhelp`
 

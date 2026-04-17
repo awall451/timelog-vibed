@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8888:8888"
+    environment:
+      TIMELOG_DB: /data/timelog.db
+    volumes:
+      - ./data:/data
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
