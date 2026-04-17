@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "timelog"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.0",
+    "tabulate>=0.9",
+]
+
+[tool.setuptools.packages.find]
+include = ["timelog*"]
+
+[project.scripts]
+tlshow   = "timelog.cli.show:show"
+tlsum    = "timelog.cli.summary:summary"
+tlupdate = "timelog.cli.update:update"
+tlexport = "timelog.cli.export:export"
+tlhelp   = "timelog.cli:help_cmd"
