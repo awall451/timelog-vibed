@@ -202,6 +202,34 @@ def add_entry(
             )
 
 
+# ── Import ─────────────────────────────────────────────────────────────────
+
+def import_from_csv(filepath: str) -> int:
+    _ensure_init()
+    rows = []
+    with open(filepath, newline="") as f:
+        reader = csv.DictReader(f)
+        expected = {"id", "project", "category", "description", "hours", "date"}
+        if not expected.issubset(set(reader.fieldnames or [])):
+            raise ValueError(f"CSV must have columns: {', '.join(sorted(expected))}")
+        for row in reader:
+            rows.append((
+                int(row["id"]),
+                row["project"],
+                row["category"],
+                row["description"],
+                float(row["hours"]),
+                row["date"],
+            ))
+    with get_connection() as conn:
+        conn.execute("DELETE FROM entries")
+        conn.executemany(
+            "INSERT INTO entries (id, project, category, description, hours, date) VALUES (?, ?, ?, ?, ?, ?)",
+            rows,
+        )
+    return len(rows)
+
+
 # ── Export ─────────────────────────────────────────────────────────────────
 
 def export_to_csv(filepath: str) -> None:

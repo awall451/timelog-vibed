@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+import tempfile
+import os
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from timelog import service
@@ -109,6 +111,22 @@ def sum_per_category(month: str | None = None):
 @app.get("/sum/category/{name}")
 def sum_by_category(name: str):
     return {"hours": service.sum_by_category(name)}
+
+
+@app.post("/import", status_code=200)
+def import_csv(file: UploadFile = File(...)):
+    if not file.filename or not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="File must be a .csv")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+        tmp.write(file.file.read())
+        tmp_path = tmp.name
+    try:
+        count = service.import_from_csv(tmp_path)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    finally:
+        os.unlink(tmp_path)
+    return {"imported": count}
 
 
 def run():
