@@ -41,4 +41,7 @@ COMMANDS
                 tlupdate YYYY-MM-DD  Sets the entry date explicitly
 
   tlexport    Export all entries to timelog-YYYY-MM-DD.csv
+
+  tlimport    Replace database with entries from a CSV file
+                tlimport <file.csv>
 """)

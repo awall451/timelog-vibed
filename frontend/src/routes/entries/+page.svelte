@@ -210,7 +210,7 @@
   }
 
   .bold  { font-weight: 600; color: #e2e8f0; }
-  .mono  { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: #64748b; }
+  .mono  { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: #64748b; white-space: nowrap; }
   .hours { font-variant-numeric: tabular-nums; font-weight: 600; color: #6366f1; }
 
   .badge {
