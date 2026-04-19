@@ -10,6 +10,7 @@ dependencies = [
     "click>=8.0",
     "tabulate>=0.9",
     "fastapi>=0.115",
+    "python-multipart>=0.0.9",
     "uvicorn>=0.30",
 ]
 
@@ -21,5 +22,6 @@ tlshow   = "timelog.cli.show:show"
 tlsum    = "timelog.cli.summary:summary"
 tlupdate = "timelog.cli.update:update"
 tlexport = "timelog.cli.export:export"
+tlimport = "timelog.cli.import_:import_cmd"
 tlhelp   = "timelog.cli:help_cmd"
 tlserve  = "timelog.api:run"
