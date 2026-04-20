@@ -7,6 +7,9 @@
 
 * [How it works](#how-it-works)
 * [Installation and pre-requisites](#installation-and-pre-requisites)
+* [Frontend](#frontend)
+  * [Themes](#themes)
+  * [Entries page](#entries-page)
 * [`tlhelp`](#tlhelp)
 * [Functions](#functions)
   * [`tlupdate`](#tlupdate)
@@ -29,6 +32,7 @@
     * [`tlsum category <category_name>`](#tlsum-category-category_name)
     * [`tlsum month <YYYY-MM>`](#tlsum-month-yyyy-mm)
   * [`tlexport`](#tlexport)
+  * [`tlimport`](#tlimport)
 
 <!-- mtoc-end -->
 
@@ -82,6 +86,43 @@ tlstop   # stop everything
 ```
 
 Your database is created automatically at `./data/timelog.db` on first run.
+
+## Frontend
+
+The web UI is available at http://localhost:3000 after running `tlstart`.
+
+### Themes
+
+Six themes are available from the selector in the top navigation bar. Your choice is saved to `localStorage` and persists across page reloads.
+
+| Theme | Description |
+|---|---|
+| Default | Dark blue-grey |
+| Tokyo Night | Deep navy with purple accents |
+| Cyberpunk | High contrast neon |
+| Dracula | Classic purple dark theme |
+| Rosé Pine | Muted warm tones |
+| Catppuccin Latte | Light theme |
+
+### Entries page
+
+The entries table has several interactive filtering and sorting features:
+
+**Sorting**
+- Click the **Date** column header to toggle between newest-first and oldest-first. An ↑/↓ indicator shows the current direction.
+
+**Click-to-filter**
+- Click any **date** in the table to filter to that day. The active date appears as a removable chip in the filter bar. Click the same date again or press × to clear.
+- Click any **project name** to filter to that project. The project dropdown updates to match. Click again to clear.
+- Click any **category badge** to filter to that category. The category dropdown updates to match. Click again to clear.
+
+**Date filter button**
+- Click **Date** to open the date text input. Type a partial date to filter:
+  - `2026` — all entries in 2026
+  - `2026-01` — all entries in January 2026
+  - `2026-01-15` — entries on a specific day
+- Click the calendar icon inside the box to pick a specific day from a date picker instead of typing.
+- Click **Date** again to toggle the input off. Your typed value is retained for when you toggle it back on.
 
 ## `tlhelp`
 
@@ -314,6 +355,31 @@ Export complete: timelog-2026-04-16.csv
 
 ![](.img/tlexport.png)
 
+### `tlimport`
+
+Use `tlimport` to replace your entire database with entries from a CSV file. This is useful for migrating data from another timelog instance or restoring from a backup.
+
+```bash
+tlimport timelog-2026-04-19.csv
+Importing from timelog-2026-04-19.csv...
+Imported 217 entries.
+```
+
+The CSV must have the following columns (matching the `tlexport` format):
+
+```
+id,project,category,description,hours,date
+```
+
+> **Warning:** `tlimport` replaces all existing entries. Export first if you want to keep your current data.
+
+You can also import via the API directly from the host:
+
+```bash
+curl -X POST http://localhost:8888/import -F "file=@timelog-2026-04-19.csv"
+# {"imported": 217}
+```
+
 ## Database
 
-Your data lives at `~/.local/share/timelog/timelog.db` — a plain SQLite file. Back it up like any other file. You can open it directly with any SQLite client if you ever need raw access.
+Your data lives at `./data/timelog.db` — a plain SQLite file bind-mounted from the host into the container. Back it up like any other file, or use `tlexport` to get a CSV snapshot. You can open it directly with any SQLite client if you ever need raw access.
