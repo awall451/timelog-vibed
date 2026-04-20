@@ -9,7 +9,7 @@
   let month        = $state('');
   let project      = $state('');
   let category     = $state('');
-  let dateAsc      = $state(true);
+  let dateAsc      = $state(false);
   let selectedDate = $state('');
 
   function pickDate(date: string) {
@@ -156,7 +156,7 @@
   }
 
   .btn-primary {
-    background: #6366f1;
+    background: var(--accent);
     color: #fff;
     text-decoration: none;
     padding: 0.4rem 0.9rem;
@@ -166,7 +166,7 @@
     transition: background 0.15s;
   }
 
-  .btn-primary:hover { background: #4f46e5; }
+  .btn-primary:hover { background: var(--accent-hover); }
 
   .filters {
     display: flex;
@@ -182,9 +182,9 @@
   }
 
   .filter-row button {
-    background: #1a1d27;
-    border: 1px solid #2d3148;
-    color: #94a3b8;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted-mid);
     padding: 0.35rem 0.85rem;
     border-radius: 6px;
     font-size: 0.85rem;
@@ -192,14 +192,14 @@
     transition: all 0.15s;
   }
 
-  .filter-row button:hover  { border-color: #6366f1; color: #e2e8f0; }
-  .filter-row button.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .filter-row button:hover  { border-color: var(--accent); color: var(--text); }
+  .filter-row button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   .filter-row select,
   .date-input-wrap {
-    background: #1a1d27;
-    border: 1px solid #2d3148;
-    color: #e2e8f0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
     padding: 0.35rem 0.6rem;
     border-radius: 6px;
     font-size: 0.85rem;
@@ -207,7 +207,7 @@
     cursor: pointer;
   }
 
-  .filter-row select:focus { border-color: #6366f1; }
+  .filter-row select:focus { border-color: var(--accent); }
 
   .date-input-wrap {
     display: flex;
@@ -217,12 +217,12 @@
     cursor: default;
   }
 
-  .date-input-wrap:focus-within { border-color: #6366f1; }
+  .date-input-wrap:focus-within { border-color: var(--accent); }
 
   .date-input-wrap input[type='text'] {
     background: none;
     border: none;
-    color: #e2e8f0;
+    color: var(--text);
     font-size: 0.85rem;
     outline: none;
     padding: 0.35rem 0.6rem;
@@ -240,7 +240,7 @@
   .calendar-icon {
     background: none;
     border: none;
-    color: #64748b;
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0.35rem 0.5rem 0.35rem 0;
     display: flex;
@@ -248,11 +248,11 @@
     transition: color 0.15s;
   }
 
-  .calendar-icon:hover { color: #a5b4fc; }
+  .calendar-icon:hover { color: var(--accent-light); }
 
   .table-wrap {
-    background: #1a1d27;
-    border: 1px solid #2d3148;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
   }
@@ -269,8 +269,8 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #64748b;
-    border-bottom: 1px solid #2d3148;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
   }
 
   thead th.sortable {
@@ -278,38 +278,38 @@
     user-select: none;
   }
 
-  thead th.sortable:hover { color: #e2e8f0; }
+  thead th.sortable:hover { color: var(--text); }
 
-  .sort-icon { color: #6366f1; }
+  .sort-icon { color: var(--accent); }
 
-  tbody tr:not(:last-child) { border-bottom: 1px solid #1e2235; }
+  tbody tr:not(:last-child) { border-bottom: 1px solid var(--border-subtle); }
 
   tbody td {
     padding: 0.75rem 1rem;
-    color: #cbd5e1;
+    color: var(--text-secondary);
   }
 
-  .bold  { font-weight: 600; color: #e2e8f0; }
+  .bold  { font-weight: 600; color: var(--text); white-space: nowrap; }
 
   .project-cell { cursor: pointer; }
-  .project-cell:hover { color: #a5b4fc; }
+  .project-cell:hover { color: var(--accent-light); }
 
-  .category-cell { cursor: pointer; }
-  .category-cell:hover { background: #3d4268; color: #e2e8f0; }
-  .mono  { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: #64748b; white-space: nowrap; }
-  .hours { font-variant-numeric: tabular-nums; font-weight: 600; color: #6366f1; }
+  .category-cell { cursor: pointer; white-space: nowrap; }
+  .category-cell:hover { background: var(--badge-hover); color: var(--text); }
+  .mono  { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+  .hours { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent); }
 
   .date-cell { cursor: pointer; }
-  .date-cell:hover { color: #a5b4fc; }
-  .date-active { color: #6366f1 !important; font-weight: 600; }
+  .date-cell:hover { color: var(--accent-light); }
+  .date-active { color: var(--accent) !important; font-weight: 600; }
 
   .date-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    background: #2d3148;
-    color: #a5b4fc;
-    border: 1px solid #6366f1;
+    background: var(--surface2);
+    color: var(--accent-light);
+    border: 1px solid var(--accent);
     border-radius: 6px;
     padding: 0.2rem 0.5rem;
     font-size: 0.82rem;
@@ -319,18 +319,18 @@
   .date-chip button {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--text-muted-mid);
     cursor: pointer;
     padding: 0;
     font-size: 1rem;
     line-height: 1;
   }
 
-  .date-chip button:hover { color: #f87171; }
+  .date-chip button:hover { color: var(--error); }
 
   .badge {
-    background: #2d3148;
-    color: #94a3b8;
+    background: var(--surface2);
+    color: var(--text-muted-mid);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-size: 0.78rem;
@@ -342,17 +342,17 @@
     align-items: center;
   }
 
-  .count { font-size: 0.82rem; color: #64748b; }
+  .count { font-size: 0.82rem; color: var(--text-muted); }
 
-  .total { font-size: 0.9rem; color: #94a3b8; }
-  .total span { font-weight: 600; color: #6366f1; font-variant-numeric: tabular-nums; }
+  .total { font-size: 0.9rem; color: var(--text-muted-mid); }
+  .total span { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
 
-  .muted { color: #64748b; }
-  .empty { color: #64748b; font-size: 0.9rem; }
-  .error { color: #f87171; font-size: 0.9rem; }
+  .muted { color: var(--text-muted); }
+  .empty { color: var(--text-muted); font-size: 0.9rem; }
+  .error { color: var(--error); font-size: 0.9rem; }
 
   code {
-    background: #2d3148;
+    background: var(--surface2);
     padding: 0.1em 0.4em;
     border-radius: 4px;
     font-size: 0.85em;
