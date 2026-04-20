@@ -2,10 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Important
-
-This is a fork for experimentation. The original remote GitHub repository must remain completely untouched — do not push to it or suggest doing so. This fork is Claude-assisted; the original repo is the author's own independent work.
-
 ## What this is
 
 A CLI time-tracking tool backed by a local PostgreSQL instance running in Docker. All user-facing functionality is bash functions/aliases defined in `timelog_functions.sh`, sourced into the user's shell. There is no build step, no test suite, and no package manager.

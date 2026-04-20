@@ -109,15 +109,15 @@
   }
 
   .page-header .date {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.9rem;
     margin-top: 0.25rem;
   }
 
   /* Stat card */
   .stat-card {
-    background: #1a1d27;
-    border: 1px solid #2d3148;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem 2rem;
     display: flex;
@@ -131,23 +131,23 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #64748b;
+    color: var(--text-muted);
   }
 
   .stat-value {
     font-size: 3rem;
     font-weight: 700;
     letter-spacing: -0.04em;
-    color: #6366f1;
+    color: var(--accent);
     line-height: 1;
   }
 
-  .stat-value.on-track { color: #22c55e; }
-  .stat-value.low      { color: #f59e0b; }
+  .stat-value.on-track { color: var(--success); }
+  .stat-value.low      { color: var(--warning); }
 
   .stat-sub {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--text-muted);
   }
 
   /* Sections */
@@ -170,7 +170,7 @@
   }
 
   .btn-primary {
-    background: #6366f1;
+    background: var(--accent);
     color: #fff;
     text-decoration: none;
     padding: 0.4rem 0.9rem;
@@ -180,12 +180,12 @@
     transition: background 0.15s;
   }
 
-  .btn-primary:hover { background: #4f46e5; }
+  .btn-primary:hover { background: var(--accent-hover); }
 
   /* Table */
   .table-wrap {
-    background: #1a1d27;
-    border: 1px solid #2d3148;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
   }
@@ -202,33 +202,34 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #64748b;
-    border-bottom: 1px solid #2d3148;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
   }
 
   tbody tr:not(:last-child) {
-    border-bottom: 1px solid #1e2235;
+    border-bottom: 1px solid var(--border-subtle);
   }
 
   tbody td {
     padding: 0.75rem 1rem;
-    color: #cbd5e1;
+    color: var(--text-secondary);
   }
 
-  .bold { font-weight: 600; color: #e2e8f0; }
+  .bold { font-weight: 600; color: var(--text); }
 
   .badge {
-    background: #2d3148;
-    color: #94a3b8;
+    background: var(--surface2);
+    color: var(--text-muted-mid);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-size: 0.78rem;
+    white-space: nowrap;
   }
 
   .hours {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
-    color: #6366f1;
+    color: var(--accent);
   }
 
   /* Bar chart */
@@ -247,21 +248,21 @@
 
   .bar-label {
     font-size: 0.88rem;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .bar-track {
-    background: #1a1d27;
+    background: var(--surface);
     border-radius: 4px;
     height: 8px;
     overflow: hidden;
   }
 
   .bar-fill {
-    background: #6366f1;
+    background: var(--accent);
     height: 100%;
     border-radius: 4px;
     transition: width 0.4s ease;
@@ -269,21 +270,21 @@
 
   .bar-value {
     font-size: 0.82rem;
-    color: #64748b;
+    color: var(--text-muted);
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
 
   /* Utility */
-  .muted { color: #64748b; }
+  .muted { color: var(--text-muted); }
   .small { font-size: 0.8rem; font-weight: 400; }
-  .empty { color: #64748b; font-size: 0.9rem; }
-  .empty a { color: #6366f1; text-decoration: none; }
-  .error { color: #f87171; font-size: 0.9rem; }
-  .loading { color: #64748b; }
+  .empty { color: var(--text-muted); font-size: 0.9rem; }
+  .empty a { color: var(--accent); text-decoration: none; }
+  .error { color: var(--error); font-size: 0.9rem; }
+  .loading { color: var(--text-muted); }
 
   code {
-    background: #2d3148;
+    background: var(--surface2);
     padding: 0.1em 0.4em;
     border-radius: 4px;
     font-size: 0.85em;
