@@ -12,6 +12,17 @@
   let dateAsc      = $state(false);
   let selectedDate = $state('');
 
+  const CELL    = 11;
+  const GAP     = 2;
+  const STEP    = CELL + GAP;
+  const LABEL_H = 14;
+  const WEEKS   = 53;
+  const SVG_W   = WEEKS * STEP;
+  const SVG_H   = LABEL_H + 7 * STEP;
+  const FILL_OP = [1, 0.22, 0.45, 0.7, 1];
+
+  let tooltip = $state<{ text: string; x: number; y: number } | null>(null);
+
   function pickDate(date: string) {
     selectedDate = selectedDate === date ? '' : date;
   }
@@ -33,20 +44,67 @@
 
   let filtered = $derived.by(() => {
     const rows = allEntries.filter(e => {
-      if (selectedDate && e.date !== selectedDate)                           return false;
-      if (!selectedDate && dateFilter === 'today'     && e.date !== today)  return false;
+      if (selectedDate && e.date !== selectedDate)                              return false;
+      if (!selectedDate && dateFilter === 'today'     && e.date !== today)     return false;
       if (!selectedDate && dateFilter === 'yesterday' && e.date !== yesterday) return false;
       if (!selectedDate && dateFilter === 'month'     && month && !e.date.startsWith(month)) return false;
-      if (project  && e.project  !== project)                               return false;
-      if (category && e.category !== category)                              return false;
+      if (project  && e.project  !== project)                                  return false;
+      if (category && e.category !== category)                                 return false;
       return true;
     });
-    return dateAsc
-      ? rows
-      : [...rows].reverse();
+    return dateAsc ? rows : [...rows].reverse();
   });
 
   let totalHours = $derived(filtered.reduce((s, e) => s + e.hours, 0));
+
+  let heatmapHours = $derived.by(() => {
+    const m = new Map<string, number>();
+    for (const e of allEntries) {
+      if (project  && e.project  !== project)  continue;
+      if (category && e.category !== category) continue;
+      m.set(e.date, (m.get(e.date) ?? 0) + e.hours);
+    }
+    return m;
+  });
+
+  let gridData = $derived.by(() => {
+    const todayDate = new Date(today + 'T00:00:00');
+    const todayDow  = todayDate.getDay();
+    const startDate = new Date(todayDate);
+    startDate.setDate(startDate.getDate() - 364 - todayDow);
+
+    type Cell = { date: string; hours: number; level: number; inRange: boolean; col: number; row: number };
+    const cells: Cell[] = [];
+
+    for (let i = 0; i < WEEKS * 7; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const hrs     = heatmapHours.get(dateStr) ?? 0;
+      const level   = hrs === 0 ? 0 : hrs < 2 ? 1 : hrs < 4 ? 2 : hrs < 6 ? 3 : 4;
+      cells.push({
+        date: dateStr, hours: hrs, level,
+        inRange: dateStr <= today,
+        col: Math.floor(i / 7),
+        row: i % 7
+      });
+    }
+
+    const monthLabels: Array<{ col: number; label: string }> = [];
+    let lastMonth = '';
+    for (let col = 0; col < WEEKS; col++) {
+      const mo = cells[col * 7].date.slice(0, 7);
+      if (mo !== lastMonth) {
+        lastMonth = mo;
+        monthLabels.push({
+          col,
+          label: new Date(cells[col * 7].date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short' })
+        });
+      }
+    }
+
+    return { cells, monthLabels };
+  });
 </script>
 
 <div class="page">
@@ -95,6 +153,66 @@
     </div>
   </div>
 
+  {#if !loading && !loadError}
+    <div class="heatmap-section">
+      <svg
+        viewBox="0 0 {SVG_W} {SVG_H}"
+        style="width:100%; max-width:{SVG_W}px; display:block; overflow:visible"
+        aria-label="Activity heatmap — last 12 months"
+        role="img"
+      >
+        {#each gridData.monthLabels as { col, label } (col)}
+          <text
+            x={col * STEP}
+            y={10}
+            style="font-size:9px; fill:var(--text-muted); font-family:inherit"
+          >{label}</text>
+        {/each}
+
+        {#each gridData.cells as cell (cell.date)}
+          <rect
+            x={cell.col * STEP}
+            y={LABEL_H + cell.row * STEP}
+            width={CELL}
+            height={CELL}
+            rx="2"
+            fill={cell.level > 0 && cell.inRange ? 'var(--accent)' : 'var(--surface2)'}
+            fill-opacity={cell.level > 0 && cell.inRange ? FILL_OP[cell.level] : 1}
+            stroke={selectedDate === cell.date ? 'var(--text)' : 'none'}
+            stroke-width="1.5"
+            style="cursor:{cell.inRange ? 'pointer' : 'default'}"
+            onclick={() => { if (cell.inRange) pickDate(cell.date); }}
+            onmouseenter={(e) => {
+              if (!cell.inRange) return;
+              tooltip = {
+                text: cell.hours > 0
+                  ? `${cell.date} — ${cell.hours.toFixed(1)}h`
+                  : `${cell.date} — no activity`,
+                x: e.clientX + 12,
+                y: e.clientY - 36
+              };
+            }}
+            onmouseleave={() => (tooltip = null)}
+          />
+        {/each}
+      </svg>
+
+      <div class="heat-legend">
+        <span class="legend-label">Less</span>
+        {#each [0, 1, 2, 3, 4] as lvl}
+          <svg width={CELL} height={CELL} viewBox="0 0 {CELL} {CELL}" style="display:block">
+            <rect
+              width={CELL} height={CELL} rx="2"
+              fill={lvl > 0 ? 'var(--accent)' : 'var(--surface2)'}
+              fill-opacity={lvl > 0 ? FILL_OP[lvl] : 1}
+            />
+          </svg>
+        {/each}
+        <span class="legend-label">More</span>
+      </div>
+    </div>
+  {/if}
+
   {#if loadError}
     <p class="error">Could not load entries — is <code>tlserve</code> running?</p>
   {:else if loading}
@@ -135,6 +253,10 @@
     </div>
   {/if}
 </div>
+
+{#if tooltip}
+  <div class="hm-tooltip" style="left:{tooltip.x}px;top:{tooltip.y}px">{tooltip.text}</div>
+{/if}
 
 <style>
   .page {
@@ -250,6 +372,41 @@
 
   .calendar-icon:hover { color: var(--accent-light); }
 
+  /* heatmap */
+  .heatmap-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .heat-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-content: flex-end;
+  }
+
+  .legend-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0 0.15rem;
+  }
+
+  .hm-tooltip {
+    position: fixed;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* table */
   .table-wrap {
     background: var(--surface);
     border: 1px solid var(--border);

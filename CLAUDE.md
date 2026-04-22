@@ -60,6 +60,110 @@ CREATE TABLE IF NOT EXISTS entries (
 )
 ```
 
+## Current Focus
+
+**Core improvements first.** The personal app is the priority — make it genuinely great before touching enterprise. All planned features below are core (MIT, single-user) and build toward a polished, fun, informative tool. Enterprise is a far-future vision, not active work.
+
+## Planned Features (Core — MIT)
+
+### 1. Entries Page — GitHub-style Heatmap
+52×7 SVG grid (last ~1 year), color intensity = hours logged per day. Pure SVG, no library. Filter-aware:
+- Intensity derived from `allEntries` filtered by current `project` + `category` (not date)
+- Clicking a cell sets `selectedDate` → table filters to that day + cell highlights
+- Changing project/category filter → heatmap intensities re-derive reactively
+- 5 intensity levels (0h, <2h, <4h, <6h, 6h+) using CSS vars for theme compat
+- Month labels above columns, tooltip on hover (date + hours)
+- No new API endpoint needed — all data already client-side in `allEntries`
+
+### 2. Charts Page (`/charts`) — Analytics Dashboard
+New route with multiple pure SVG/CSS charts, no charting library. Candidate charts:
+- **Donut — Hours by Project** (all time or date-ranged)
+- **Donut — Hours by Category**
+- **Stacked bar — Daily hours last 14 days**, color segments per project
+- **Weekly pace line** — daily hours vs 8h goal line, last 4 weeks (sparkline style)
+- **Project × Category heatmap** — grid: rows=projects, cols=categories, cell=hours; shows where time actually goes
+- Date range picker to scope all charts simultaneously
+- Charts use same CSS vars as themes so they look native
+
+### 3. Live Timer
+Start/stop timer → auto-calculates hours on stop, pre-fills log form. Biggest UX gap vs Toggl. State persisted to `localStorage` so refresh doesn't lose it.
+
+### 4. Entry Templates
+Save common project+category+description combos. One-click to pre-fill log form. Stored in `localStorage`, no schema change needed.
+
+### 5. Weekly Goal Tracking
+Set target hours/week per project. Progress bar on dashboard. Config stored in `localStorage`.
+
+### 6. Export (CSV + PDF)
+CSV already exists via CLI (`tlexport`). Add PDF timesheet export from frontend — grouped by project, date range selectable. Uses browser print API or a lightweight lib.
+
+### 7. Tags
+Free-form labels on entries, filterable. Adds dimension without schema overhaul — stored as comma-separated text column, parsed client-side.
+
+### 8. PWA / Mobile Layout
+Service worker + manifest → installable, works offline for log form. Mobile-friendly layout for field logging.
+
+## Future Vision — Multi-User / Team Edition
+
+> **Not active work.** Long-term vision. Build core personal features first. Everything here is MIT open source — no closed source, no private repos. Single repo, one license.
+
+Goal: same codebase, multi-user support opt-in via config. Default behavior = current single-user local app, unchanged.
+
+### Mode Switch
+`TIMELOG_MODE=single` (default) — no auth, no users table, current behavior exactly.  
+`TIMELOG_MODE=multi` — enables auth middleware, user/org tables, admin routes.  
+One env var. Personal users never notice the enterprise code exists.
+
+### Architecture
+```
+timelog/
+  db.py        ← schema adapts to mode (single vs multi)
+  service.py   ← user_id=1 hardcoded in single mode
+  api.py       ← auth middleware skipped in single mode
+  auth/        ← OIDC middleware, only loaded in multi mode
+  admin/       ← admin routes, only loaded in multi mode
+  billing/     ← invoice engine, only loaded in multi mode
+```
+
+### Auth Strategy (multi mode)
+OIDC via [Dex](https://dexidp.io/) — federates upstream IdPs via connectors:
+- Self-hosted team: Dex sidecar → connector for LDAP/AD/SAML/Google Workspace
+- Direct SSO: point `OIDC_ISSUER` at Google/Okta/Auth0 directly — same code path, no Dex required
+- Local dev: Dex with static passwords connector
+- One env var swap between Dex and any OIDC provider
+
+### Multi-User DB Schema (additive — single mode uses only `entries`)
+```sql
+organizations(id, name, slug, billing_email)
+users(id, org_id, email, oidc_sub, role, name)
+  -- role: admin | manager | member
+  -- no password_hash — OIDC only
+projects(id, org_id, name, client, billing_rate, active)
+categories(id, name)
+entries(id, user_id, project_id, category_id, description, hours, date, approved_by, submitted_at)
+invoices(id, org_id, project_id, period_start, period_end, pdf_path, generated_at)
+```
+
+### New Surface Area (multi mode)
+- **Auth** — OIDC/JWT middleware, Dex or direct SSO
+- **RBAC** — admin / manager / member views
+- **Approval workflow** — submit → manager approves → entry locked
+- **Billing engine** — hours × rate → invoice PDF (`weasyprint` or `reportlab`)
+- **Admin dashboard** — cross-user views, utilization reports
+- **Project budgets** — hour caps, alerts
+- **Client portal** — read-only billed-hours view for clients
+- **Slack/Teams bot** — `/log 2h ProjectX dev` → entry created
+- **Rate cards** — $/hr per user or per project
+
+### What stays shared (all modes)
+- All frontend chart components (heatmap, donuts, bars) — scoped per-user in multi mode
+- Live timer, entry templates
+- Core entry CRUD logic — unchanged
+- CLI — single mode only
+
+### Monetization (future consideration)
+Hosted SaaS: run `timelog.io`, charge $5-8/mo for convenience. Code stays MIT. No enterprise licensing complexity. Decide after the app has real users.
+
 ## Local development (outside Docker)
 
 ```bash
