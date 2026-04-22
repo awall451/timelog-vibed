@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import TimerWidget from '$lib/TimerWidget.svelte';
 
   const THEMES = ['default', 'tokyonight', 'cyberpunk', 'dracula', 'rosepine', 'catppuccin'] as const;
   type Theme = typeof THEMES[number];
@@ -52,6 +53,8 @@
     {@render children()}
   </main>
 </div>
+
+<TimerWidget />
 
 <style>
   :global(:root) {

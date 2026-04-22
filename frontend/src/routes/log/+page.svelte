@@ -1,6 +1,8 @@
 <script lang="ts">
   import { api } from '$lib/api';
   import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
 
   let project    = $state('');
   let category   = $state('');
@@ -12,6 +14,20 @@
 
   const projectSuggestions  = api.projects();
   const categorySuggestions = api.categories();
+
+  onMount(() => {
+    if (!browser) return;
+    const raw = localStorage.getItem('timer-prefill');
+    if (!raw) return;
+    try {
+      const prefill = JSON.parse(raw);
+      if (prefill.project)     project     = prefill.project;
+      if (prefill.category)    category    = prefill.category;
+      if (prefill.description) description = prefill.description;
+      if (prefill.hours)       hours       = String(prefill.hours);
+    } catch {}
+    localStorage.removeItem('timer-prefill');
+  });
 
   async function submit(e: Event) {
     e.preventDefault();
