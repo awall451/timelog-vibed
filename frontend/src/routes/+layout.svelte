@@ -23,6 +23,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Timelog</title>
+</svelte:head>
+
 <div class="app">
   <header>
     <nav>
