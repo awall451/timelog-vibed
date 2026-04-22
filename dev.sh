@@ -25,3 +25,8 @@ tlexport() {
 }
 tlhelp()   { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlhelp "$@"; }
 tlupdate() { docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec -it api tlupdate "$@"; }
+tlimport() {
+    local file="$1"
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" cp "$file" "api:/app/$(basename "$file")"
+    docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlimport "/app/$(basename "$file")"
+}

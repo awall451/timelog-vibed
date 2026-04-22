@@ -89,7 +89,61 @@ Your database is created automatically at `./data/timelog.db` on first run.
 
 ## Frontend
 
-The web UI is available at http://localhost:3000 after running `tlstart`.
+The web UI is available at http://localhost:3000 after running `tlstart`. It has three pages: **Dashboard**, **Entries**, and **Log Time**.
+
+### Dashboard
+
+The dashboard shows today's hours against an 8-hour goal and a bar chart of all-time hours broken down by project.
+
+![](.img/screenshots/dashboard.png)
+
+### Log Time
+
+The **Log Time** page is the web equivalent of `tlupdate`. Fill in project, category, description, hours, and an optional date (defaults to today), then hit **Save Entry**.
+
+![](.img/screenshots/log_empty.png)
+
+### Entries page
+
+The **Entries** page shows your full history in a sortable, filterable table. The footer shows the entry count and total hours for whatever is currently displayed.
+
+![](.img/screenshots/entries.png)
+
+#### Sorting
+
+Click the **Date** column header to toggle between newest-first and oldest-first. An ↑/↓ indicator shows the active direction.
+
+![](.img/screenshots/entries_sort_asc.png)
+
+#### Click-to-filter
+
+Click directly on any value in the table to filter to it — no need to touch the dropdowns:
+
+- **Project name** → filters the table and syncs the project dropdown
+- **Category badge** → filters the table and syncs the category dropdown
+- Click the same cell again (or use the × chip in the filter bar) to clear
+
+Project filter active:
+
+![](.img/screenshots/entries_filter_project.png)
+
+Category filter active:
+
+![](.img/screenshots/entries_filter_category.png)
+
+#### Date filter
+
+Click the **Date** button in the filter bar to reveal a text input. Type any partial ISO date to filter:
+
+| Input | Result |
+|---|---|
+| `2026` | All entries in 2026 |
+| `2026-04` | All entries in April 2026 |
+| `2026-04-15` | Entries on a specific day |
+
+Click the calendar icon inside the input to use a date picker instead of typing. Click **Date** again to collapse — your typed value is retained.
+
+![](.img/screenshots/entries_filter_date.png)
 
 ### Themes
 
@@ -104,25 +158,18 @@ Six themes are available from the selector in the top navigation bar. Your choic
 | Rosé Pine | Muted warm tones |
 | Catppuccin Latte | Light theme |
 
-### Entries page
-
-The entries table has several interactive filtering and sorting features:
-
-**Sorting**
-- Click the **Date** column header to toggle between newest-first and oldest-first. An ↑/↓ indicator shows the current direction.
-
-**Click-to-filter**
-- Click any **date** in the table to filter to that day. The active date appears as a removable chip in the filter bar. Click the same date again or press × to clear.
-- Click any **project name** to filter to that project. The project dropdown updates to match. Click again to clear.
-- Click any **category badge** to filter to that category. The category dropdown updates to match. Click again to clear.
-
-**Date filter button**
-- Click **Date** to open the date text input. Type a partial date to filter:
-  - `2026` — all entries in 2026
-  - `2026-01` — all entries in January 2026
-  - `2026-01-15` — entries on a specific day
-- Click the calendar icon inside the box to pick a specific day from a date picker instead of typing.
-- Click **Date** again to toggle the input off. Your typed value is retained for when you toggle it back on.
+<table>
+<tr>
+<td align="center"><strong>Default</strong><br><img src=".img/screenshots/dashboard_default.png"></td>
+<td align="center"><strong>Tokyo Night</strong><br><img src=".img/screenshots/dashboard_tokyonight.png"></td>
+<td align="center"><strong>Cyberpunk</strong><br><img src=".img/screenshots/dashboard_cyberpunk.png"></td>
+</tr>
+<tr>
+<td align="center"><strong>Dracula</strong><br><img src=".img/screenshots/dashboard_dracula.png"></td>
+<td align="center"><strong>Rosé Pine</strong><br><img src=".img/screenshots/dashboard_rosepine.png"></td>
+<td align="center"><strong>Catppuccin Latte</strong><br><img src=".img/screenshots/dashboard_catppuccin.png"></td>
+</tr>
+</table>
 
 ## `tlhelp`
 
