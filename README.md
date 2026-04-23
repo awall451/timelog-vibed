@@ -107,20 +107,22 @@ The **Log Time** page is the web equivalent of `tlupdate`. Fill in project, cate
 
 A floating clock widget lives in the bottom-right corner of every page. Click it to expand a panel where you can start a timer for a project and category.
 
-<p align="center"><img src=".img/screenshots/timer_expanded.png"></p>
-
 **Starting a timer:**
 1. Click the clock to open the panel
 2. Fill in Project, Category, and an optional Description
-3. Click **Start Timer**
+3. Click **Start Timer** — once running, the panel shows elapsed time and a **Stop & Log** button
 
-<p align="center"><img src=".img/screenshots/timer_ready.png"></p>
+<table align="center">
+<tr>
+<td align="center"><img src=".img/screenshots/timer_step1.png" width="220"><br><sub>Open</sub></td>
+<td align="center" valign="middle"><strong>&nbsp;→&nbsp;</strong></td>
+<td align="center"><img src=".img/screenshots/timer_step2.png" width="220"><br><sub>Fill in details</sub></td>
+<td align="center" valign="middle"><strong>&nbsp;→&nbsp;</strong></td>
+<td align="center"><img src=".img/screenshots/timer_step3.png" width="220"><br><sub>Running</sub></td>
+</tr>
+</table>
 
-While running, the panel shows an elapsed time counter and your project/category. Click **Stop & Log** to stop the timer — it calculates hours, pre-fills the Log Time form, and redirects you there to review and save.
-
-<p align="center"><img src=".img/screenshots/timer_running.png"></p>
-
-Timer state is persisted to `localStorage`, so refreshing the page or navigating away doesn't lose a running timer.
+Clicking **Stop & Log** calculates hours, pre-fills the Log Time form, and redirects you there to review and save. Timer state persists to `localStorage`, so refreshing or navigating away won't lose a running timer.
 
 ### Entries page
 
