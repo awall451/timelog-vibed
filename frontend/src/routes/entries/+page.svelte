@@ -169,7 +169,9 @@
         hours: h,
         date: editDate,
       } as NewEntry);
-      allEntries = allEntries.map(en => en.id === updated.id ? updated : en);
+      allEntries = allEntries
+        .map(en => en.id === updated.id ? updated : en)
+        .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
       closeEdit();
     } catch {
       editError = 'Save failed.';
