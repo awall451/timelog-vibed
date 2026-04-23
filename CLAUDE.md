@@ -174,3 +174,7 @@ cd frontend
 npm install
 npm run dev                            # frontend at localhost:5173
 ```
+
+## Known bugs to fix
+
+* Clock live track widget - if on the 'Log Time' page and click 'Stop & log,' nothing happens. Normal behavior is to redirect to the log time page, but this breaks if you are alread on the log time page.

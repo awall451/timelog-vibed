@@ -43,6 +43,21 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return res.json();
 }
 
+async function put<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
+async function del(path: string): Promise<void> {
+  const res = await fetch(`${BASE}${path}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+}
+
 export const api = {
   entries: {
     all: ()              => get<Entry[]>('/entries'),
@@ -53,6 +68,8 @@ export const api = {
     byProject: (n: string) => get<Entry[]>(`/entries/project/${encodeURIComponent(n)}`),
     byCategory: (n: string) => get<Entry[]>(`/entries/category/${encodeURIComponent(n)}`),
     add: (entry: NewEntry) => post<{ status: string }>('/entries', entry),
+    update: (id: number, entry: NewEntry) => put<Entry>(`/entries/${id}`, entry),
+    delete: (id: number) => del(`/entries/${id}`),
   },
   sum: {
     all: ()              => get<{ hours: number }>('/sum'),

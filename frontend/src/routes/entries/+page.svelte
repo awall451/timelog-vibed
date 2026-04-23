@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api, type Entry } from '$lib/api';
+  import { api, type Entry, type NewEntry } from '$lib/api';
 
   let allEntries  = $state<Entry[]>([]);
   let loading     = $state(true);
@@ -23,6 +23,22 @@
 
   let tooltip = $state<{ text: string; x: number; y: number } | null>(null);
 
+  // row action state
+  let hoveredId  = $state<number | null>(null);
+  let menuId     = $state<number | null>(null);
+  let deleteId   = $state<number | null>(null);
+  let deleting   = $state(false);
+
+  // edit modal state
+  let editEntry    = $state<Entry | null>(null);
+  let editProject  = $state('');
+  let editCategory = $state('');
+  let editDesc     = $state('');
+  let editHours    = $state('');
+  let editDate     = $state('');
+  let editSaving   = $state(false);
+  let editError    = $state('');
+
   function pickDate(date: string) {
     selectedDate = selectedDate === date ? '' : date;
   }
@@ -32,14 +48,18 @@
     dateFilter = filter;
   }
 
-  const projects   = api.projects();
-  const categories = api.categories();
+  const projectSuggestions  = api.projects();
+  const categorySuggestions = api.categories();
 
   const today     = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-  api.entries.all()
-    .then(e  => { allEntries = e; loading = false; })
+  async function loadEntries() {
+    allEntries = await api.entries.all();
+  }
+
+  loadEntries()
+    .then(() => { loading = false; })
     .catch(() => { loadError = true; loading = false; });
 
   let filtered = $derived.by(() => {
@@ -105,7 +125,82 @@
 
     return { cells, monthLabels };
   });
+
+  function openMenu(id: number) {
+    menuId   = menuId === id ? null : id;
+    deleteId = null;
+  }
+
+  function closeMenu() {
+    menuId   = null;
+    deleteId = null;
+  }
+
+  function openEdit(entry: Entry) {
+    editEntry    = entry;
+    editProject  = entry.project;
+    editCategory = entry.category;
+    editDesc     = entry.description ?? '';
+    editHours    = String(entry.hours);
+    editDate     = entry.date;
+    editError    = '';
+    closeMenu();
+  }
+
+  function closeEdit() {
+    editEntry = null;
+  }
+
+  async function saveEdit(e: Event) {
+    e.preventDefault();
+    if (!editEntry) return;
+    editError = '';
+    const h = parseFloat(editHours);
+    if (!editProject || !editCategory || isNaN(h) || h <= 0) {
+      editError = 'Project, category, and positive hours required.';
+      return;
+    }
+    editSaving = true;
+    try {
+      const updated = await api.entries.update(editEntry.id, {
+        project: editProject,
+        category: editCategory,
+        description: editDesc,
+        hours: h,
+        date: editDate,
+      } as NewEntry);
+      allEntries = allEntries.map(en => en.id === updated.id ? updated : en);
+      closeEdit();
+    } catch {
+      editError = 'Save failed.';
+    } finally {
+      editSaving = false;
+    }
+  }
+
+  function confirmDelete(id: number) {
+    deleteId = id;
+    menuId   = id;
+  }
+
+  async function doDelete() {
+    if (!deleteId) return;
+    deleting = true;
+    try {
+      await api.entries.delete(deleteId);
+      allEntries = allEntries.filter(e => e.id !== deleteId);
+      closeMenu();
+    } catch {
+      // silent — entry stays in list
+    } finally {
+      deleting = false;
+    }
+  }
 </script>
+
+<svelte:window onclick={(e) => {
+  if (menuId !== null && !(e.target as Element).closest('.row-menu')) closeMenu();
+}} />
 
 <div class="page">
   <div class="page-header">
@@ -137,14 +232,14 @@
     </div>
 
     <div class="filter-row">
-      {#await projects then list}
+      {#await projectSuggestions then list}
         <select bind:value={project}>
           <option value="">All projects</option>
           {#each list as p}<option value={p}>{p}</option>{/each}
         </select>
       {/await}
 
-      {#await categories then list}
+      {#await categorySuggestions then list}
         <select bind:value={category}>
           <option value="">All categories</option>
           {#each list as c}<option value={c}>{c}</option>{/each}
@@ -231,16 +326,47 @@
             <th>Category</th>
             <th>Description</th>
             <th>Hours</th>
+            <th class="actions-col"></th>
           </tr>
         </thead>
         <tbody>
           {#each filtered as entry (entry.id)}
-            <tr>
+            <tr
+              onmouseenter={() => hoveredId = entry.id}
+              onmouseleave={() => { if (menuId !== entry.id) hoveredId = null; }}
+            >
               <td class="mono date-cell" class:date-active={selectedDate === entry.date} onclick={() => pickDate(entry.date)}>{entry.date}</td>
               <td class="bold project-cell" onclick={() => project = project === entry.project ? '' : entry.project}>{entry.project}</td>
               <td><span class="badge category-cell" onclick={() => category = category === entry.category ? '' : entry.category}>{entry.category}</span></td>
               <td class="muted">{entry.description || '—'}</td>
               <td class="hours">{entry.hours.toFixed(2)}</td>
+              <td class="actions-col">
+                <div class="row-menu">
+                  <button
+                    class="ellipsis-btn"
+                    class:visible={hoveredId === entry.id || menuId === entry.id}
+                    onclick={(e) => { e.stopPropagation(); openMenu(entry.id); }}
+                    aria-label="Row actions"
+                  >⋮</button>
+
+                  {#if menuId === entry.id}
+                    <div class="dropdown">
+                      {#if deleteId === entry.id}
+                        <div class="delete-confirm">
+                          <span>Delete?</span>
+                          <button class="confirm-yes" onclick={(e) => { e.stopPropagation(); doDelete(); }} disabled={deleting}>
+                            {deleting ? '…' : 'Yes'}
+                          </button>
+                          <button class="confirm-no" onclick={(e) => { e.stopPropagation(); closeMenu(); }}>No</button>
+                        </div>
+                      {:else}
+                        <button onclick={(e) => { e.stopPropagation(); openEdit(entry); }}>Edit</button>
+                        <button class="danger" onclick={(e) => { e.stopPropagation(); confirmDelete(entry.id); }}>Delete</button>
+                      {/if}
+                    </div>
+                  {/if}
+                </div>
+              </td>
             </tr>
           {/each}
         </tbody>
@@ -256,6 +382,68 @@
 
 {#if tooltip}
   <div class="hm-tooltip" style="left:{tooltip.x}px;top:{tooltip.y}px">{tooltip.text}</div>
+{/if}
+
+<!-- Edit modal -->
+{#if editEntry}
+  <div class="modal-backdrop" onclick={closeEdit} role="presentation">
+    <div class="modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Edit entry">
+      <h2>Edit Entry</h2>
+
+      <form onsubmit={saveEdit}>
+        {#if editError}
+          <p class="edit-error">{editError}</p>
+        {/if}
+
+        <div class="field">
+          <label for="edit-project">Project</label>
+          {#await projectSuggestions then list}
+            <input id="edit-project" list="edit-project-list" bind:value={editProject} autocomplete="off" />
+            <datalist id="edit-project-list">
+              {#each list as p}<option value={p}></option>{/each}
+            </datalist>
+          {:catch}
+            <input id="edit-project" bind:value={editProject} />
+          {/await}
+        </div>
+
+        <div class="field">
+          <label for="edit-category">Category</label>
+          {#await categorySuggestions then list}
+            <input id="edit-category" list="edit-category-list" bind:value={editCategory} autocomplete="off" />
+            <datalist id="edit-category-list">
+              {#each list as c}<option value={c}></option>{/each}
+            </datalist>
+          {:catch}
+            <input id="edit-category" bind:value={editCategory} />
+          {/await}
+        </div>
+
+        <div class="field">
+          <label for="edit-desc">Description <span class="optional">(optional)</span></label>
+          <input id="edit-desc" bind:value={editDesc} />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="edit-hours">Hours</label>
+            <input id="edit-hours" type="number" step="0.25" min="0.25" bind:value={editHours} />
+          </div>
+          <div class="field">
+            <label for="edit-date">Date</label>
+            <input id="edit-date" type="date" bind:value={editDate} />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick={closeEdit}>Cancel</button>
+          <button type="submit" class="btn-primary" disabled={editSaving}>
+            {editSaving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 {/if}
 
 <style>
@@ -493,6 +681,101 @@
     font-size: 0.78rem;
   }
 
+  /* row actions */
+  .actions-col {
+    width: 2rem;
+    padding: 0 0.5rem 0 0 !important;
+    text-align: right;
+  }
+
+  .row-menu {
+    position: relative;
+    display: inline-block;
+  }
+
+  .ellipsis-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.2rem 0.3rem;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.1s, background 0.1s;
+  }
+
+  .ellipsis-btn.visible { opacity: 1; }
+  .ellipsis-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    z-index: 200;
+    min-width: 7rem;
+    overflow: hidden;
+  }
+
+  .dropdown button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 0.55rem 0.9rem;
+    text-align: left;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .dropdown button:hover { background: var(--surface2); }
+  .dropdown button.danger { color: var(--error); }
+  .dropdown button.danger:hover { background: var(--error-bg); }
+
+  .delete-confirm {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .delete-confirm span {
+    font-size: 0.85rem;
+    color: var(--text-muted-mid);
+    flex: 1;
+  }
+
+  .confirm-yes, .confirm-no {
+    padding: 0.25rem 0.55rem !important;
+    border-radius: 5px;
+    font-size: 0.8rem !important;
+    font-weight: 600;
+    width: auto !important;
+  }
+
+  .confirm-yes {
+    background: var(--error) !important;
+    color: #fff !important;
+  }
+
+  .confirm-yes:hover:not(:disabled) { opacity: 0.85; }
+  .confirm-yes:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .confirm-no {
+    background: var(--surface2) !important;
+    color: var(--text-muted-mid) !important;
+  }
+
+  .confirm-no:hover { background: var(--border) !important; }
+
   .footer {
     display: flex;
     justify-content: space-between;
@@ -513,5 +796,127 @@
     padding: 0.1em 0.4em;
     border-radius: 4px;
     font-size: 0.85em;
+  }
+
+  /* edit modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    width: min(480px, 92vw);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .modal h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+  }
+
+  .field label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted-mid);
+  }
+
+  .optional {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .field input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-muted-mid);
+    padding: 0.55rem 1.1rem;
+    border-radius: 7px;
+    font-size: 0.88rem;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover { border-color: var(--text-muted-mid); }
+
+  .modal .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.2rem;
+    border-radius: 7px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+
+  .modal .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .modal .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .edit-error {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error);
+    padding: 0.5rem 0.75rem;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
   }
 </style>

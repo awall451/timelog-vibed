@@ -181,6 +181,30 @@ def sum_per_category(month: str | None = None) -> list[dict]:
 
 # ── Write ──────────────────────────────────────────────────────────────────
 
+def delete_entry(entry_id: int) -> None:
+    _ensure_init()
+    with get_connection() as conn:
+        conn.execute("DELETE FROM entries WHERE id = ?", (entry_id,))
+
+
+def update_entry(
+    entry_id: int,
+    project: str,
+    category: str,
+    description: str,
+    hours: float,
+    date: str,
+) -> dict | None:
+    _ensure_init()
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE entries SET project=?, category=?, description=?, hours=?, date=? WHERE id=?",
+            (project, category, description, hours, date, entry_id),
+        )
+        row = conn.execute("SELECT * FROM entries WHERE id=?", (entry_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def add_entry(
     project: str,
     category: str,

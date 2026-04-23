@@ -71,6 +71,22 @@ def add_entry(entry: NewEntry):
     return {"status": "created"}
 
 
+@app.put("/entries/{entry_id}")
+def update_entry(entry_id: int, entry: NewEntry):
+    result = service.update_entry(
+        entry_id, entry.project, entry.category, entry.description, entry.hours,
+        entry.date or ""
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return result
+
+
+@app.delete("/entries/{entry_id}", status_code=204)
+def delete_entry(entry_id: int):
+    service.delete_entry(entry_id)
+
+
 # ── Sums ───────────────────────────────────────────────────────────────────
 
 @app.get("/sum")
