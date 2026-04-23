@@ -601,7 +601,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   table {
@@ -609,6 +609,11 @@
     border-collapse: collapse;
     font-size: 0.9rem;
   }
+
+  thead tr:first-child th:first-child { border-radius: 10px 0 0 0; }
+  thead tr:first-child th:last-child  { border-radius: 0 10px 0 0; }
+  tbody tr:last-child  td:first-child { border-radius: 0 0 0 10px; }
+  tbody tr:last-child  td:last-child  { border-radius: 0 0 10px 0; }
 
   thead th {
     text-align: left;
