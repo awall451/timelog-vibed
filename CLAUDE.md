@@ -174,3 +174,11 @@ cd frontend
 npm install
 npm run dev                            # frontend at localhost:5173
 ```
+
+## Known bugs to fix
+
+* Clock live track widget - if on the 'Log Time' page and click 'Stop & log,' nothing happens. Normal behavior is to redirect to the log time page, but this breaks if you are alread on the log time page.
+
+## Visual improvements (future)
+
+* Edit entry modal + Log Time form — native browser controls (number spinner on Hours, calendar icon on Date) look inconsistent with custom styling. Attempted fix with `appearance: textfield` + `::-webkit-calendar-picker-indicator` caused issues. Proper fix: replace `type="date"` with a text input + hidden date picker (same pattern as the filter bar's custom calendar button), and strip number spinner via `::-webkit-inner-spin-button { -webkit-appearance: none }`. Affects both `frontend/src/routes/entries/+page.svelte` (edit modal) and `frontend/src/routes/log/+page.svelte` (log form).
