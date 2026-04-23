@@ -1,4 +1,4 @@
-# 🕐 CLI Timelog App
+# 🕐 Timelog
 
 <details>
 <summary>Table of Contents</summary>
@@ -42,7 +42,7 @@ Tired of living with an intern timelog project that accidentally became producti
 Started a new company with an even worse time tracking application than you could have ever imagined?  
 Tired of having to use your freaking mouse?!
 
-Well - look no further. This CLI Timelog App is your one-way ticket to time efficiency!
+Well - look no further. Timelog is your one-way ticket to time efficiency!
 
 ## How it works
 
