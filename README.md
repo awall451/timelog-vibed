@@ -107,18 +107,18 @@ The **Log Time** page is the web equivalent of `tlupdate`. Fill in project, cate
 
 A floating clock widget lives in the bottom-right corner of every page. Click it to expand a panel where you can start a timer for a project and category.
 
-![](.img/screenshots/timer_expanded.png)
+<p align="center"><img src=".img/screenshots/timer_expanded.png"></p>
 
 **Starting a timer:**
 1. Click the clock to open the panel
 2. Fill in Project, Category, and an optional Description
 3. Click **Start Timer**
 
-![](.img/screenshots/timer_ready.png)
+<p align="center"><img src=".img/screenshots/timer_ready.png"></p>
 
 While running, the panel shows an elapsed time counter and your project/category. Click **Stop & Log** to stop the timer — it calculates hours, pre-fills the Log Time form, and redirects you there to review and save.
 
-![](.img/screenshots/timer_running.png)
+<p align="center"><img src=".img/screenshots/timer_running.png"></p>
 
 Timer state is persisted to `localStorage`, so refreshing the page or navigating away doesn't lose a running timer.
 
