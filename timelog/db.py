@@ -24,6 +24,6 @@ def init_db() -> None:
                 category    TEXT    NOT NULL,
                 description TEXT,
                 hours       REAL    NOT NULL CHECK (hours > 0),
-                date        TEXT    NOT NULL DEFAULT (date('now'))
+                date        TEXT    NOT NULL DEFAULT (date('now','localtime'))
             )
         """)

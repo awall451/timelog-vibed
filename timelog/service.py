@@ -19,7 +19,7 @@ def get_entries_today() -> list[dict]:
     _ensure_init()
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT * FROM entries WHERE date = date('now') ORDER BY id"
+            "SELECT * FROM entries WHERE date = date('now','localtime') ORDER BY id"
         ).fetchall()
     return [dict(r) for r in rows]
 
@@ -28,7 +28,7 @@ def get_entries_yesterday() -> list[dict]:
     _ensure_init()
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT * FROM entries WHERE date = date('now', '-1 day') ORDER BY id"
+            "SELECT * FROM entries WHERE date = date('now','localtime','-1 day') ORDER BY id"
         ).fetchall()
     return [dict(r) for r in rows]
 
@@ -101,7 +101,7 @@ def sum_today() -> float:
     _ensure_init()
     with get_connection() as conn:
         row = conn.execute(
-            "SELECT COALESCE(SUM(hours), 0) FROM entries WHERE date = date('now')"
+            "SELECT COALESCE(SUM(hours), 0) FROM entries WHERE date = date('now','localtime')"
         ).fetchone()
     return row[0]
 
@@ -110,7 +110,7 @@ def sum_yesterday() -> float:
     _ensure_init()
     with get_connection() as conn:
         row = conn.execute(
-            "SELECT COALESCE(SUM(hours), 0) FROM entries WHERE date = date('now', '-1 day')"
+            "SELECT COALESCE(SUM(hours), 0) FROM entries WHERE date = date('now','localtime','-1 day')"
         ).fetchone()
     return row[0]
 
@@ -221,7 +221,7 @@ def add_entry(
             )
         else:
             conn.execute(
-                "INSERT INTO entries (project, category, description, hours) VALUES (?, ?, ?, ?)",
+                "INSERT INTO entries (project, category, description, hours, date) VALUES (?, ?, ?, ?, date('now','localtime'))",
                 (project, category, description, hours),
             )
 
