@@ -8,8 +8,17 @@
 * [How it works](#how-it-works)
 * [Installation and pre-requisites](#installation-and-pre-requisites)
 * [Frontend](#frontend)
+  * [Dashboard](#dashboard)
+  * [Log Time](#log-time)
+  * [Live Timer](#live-timer)
   * [Themes](#themes)
   * [Entries page](#entries-page)
+    * [Activity heatmap](#activity-heatmap)
+    * [Sorting](#sorting)
+    * [Click-to-filter](#click-to-filter)
+    * [Date filter](#date-filter)
+    * [Edit and delete entries](#edit-and-delete-entries)
+  * [Charts page](#charts-page)
 * [`tlhelp`](#tlhelp)
 * [Functions](#functions)
   * [`tlupdate`](#tlupdate)
@@ -33,6 +42,7 @@
     * [`tlsum month <YYYY-MM>`](#tlsum-month-yyyy-mm)
   * [`tlexport`](#tlexport)
   * [`tlimport`](#tlimport)
+* [Database](#database)
 
 <!-- mtoc-end -->
 
@@ -124,6 +134,32 @@ A floating clock widget lives in the bottom-right corner of every page. Click it
 
 Clicking **Stop & Log** calculates hours, pre-fills the Log Time form, and redirects you there to review and save. Timer state persists to `localStorage`, so refreshing or navigating away won't lose a running timer.
 
+### Themes
+
+Six themes are available from the selector in the top navigation bar. Your choice is saved to `localStorage` and persists across page reloads.
+
+| Theme | Description |
+|---|---|
+| Default | Dark blue-grey |
+| Tokyo Night | Deep navy with purple accents |
+| Cyberpunk | High contrast neon |
+| Dracula | Classic purple dark theme |
+| Rosé Pine | Muted warm tones |
+| Catppuccin Latte | Light theme |
+
+<table>
+<tr>
+<td align="center"><strong>Default</strong><br><img src=".img/screenshots/dashboard_default.png"></td>
+<td align="center"><strong>Tokyo Night</strong><br><img src=".img/screenshots/dashboard_tokyonight.png"></td>
+<td align="center"><strong>Cyberpunk</strong><br><img src=".img/screenshots/dashboard_cyberpunk.png"></td>
+</tr>
+<tr>
+<td align="center"><strong>Dracula</strong><br><img src=".img/screenshots/dashboard_dracula.png"></td>
+<td align="center"><strong>Rosé Pine</strong><br><img src=".img/screenshots/dashboard_rosepine.png"></td>
+<td align="center"><strong>Catppuccin Latte</strong><br><img src=".img/screenshots/dashboard_catppuccin.png"></td>
+</tr>
+</table>
+
 ### Entries page
 
 The **Entries** page shows your full history. A GitHub-style activity heatmap sits above the table, followed by a sortable, filterable entry list. The footer shows the entry count and total hours for the current view.
@@ -207,32 +243,6 @@ The **Charts** page (`/charts`) gives you a visual breakdown of where your time 
 ![](.img/screenshots/charts_stacked_bar.png)
 
 The page also includes a **Weekly Pace** sparkline (last 28 days vs. an 8h/day goal line) and a **Project × Category** heat matrix showing exactly where hours go across both dimensions.
-
-### Themes
-
-Six themes are available from the selector in the top navigation bar. Your choice is saved to `localStorage` and persists across page reloads.
-
-| Theme | Description |
-|---|---|
-| Default | Dark blue-grey |
-| Tokyo Night | Deep navy with purple accents |
-| Cyberpunk | High contrast neon |
-| Dracula | Classic purple dark theme |
-| Rosé Pine | Muted warm tones |
-| Catppuccin Latte | Light theme |
-
-<table>
-<tr>
-<td align="center"><strong>Default</strong><br><img src=".img/screenshots/dashboard_default.png"></td>
-<td align="center"><strong>Tokyo Night</strong><br><img src=".img/screenshots/dashboard_tokyonight.png"></td>
-<td align="center"><strong>Cyberpunk</strong><br><img src=".img/screenshots/dashboard_cyberpunk.png"></td>
-</tr>
-<tr>
-<td align="center"><strong>Dracula</strong><br><img src=".img/screenshots/dashboard_dracula.png"></td>
-<td align="center"><strong>Rosé Pine</strong><br><img src=".img/screenshots/dashboard_rosepine.png"></td>
-<td align="center"><strong>Catppuccin Latte</strong><br><img src=".img/screenshots/dashboard_catppuccin.png"></td>
-</tr>
-</table>
 
 ## `tlhelp`
 
