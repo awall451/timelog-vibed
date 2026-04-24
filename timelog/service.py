@@ -33,6 +33,15 @@ def get_entries_yesterday() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_entries_for_date(date: str) -> list[dict]:
+    _ensure_init()
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT * FROM entries WHERE date = ? ORDER BY id", (date,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_last_entry() -> dict | None:
     _ensure_init()
     with get_connection() as conn:

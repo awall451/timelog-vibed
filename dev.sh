@@ -30,3 +30,5 @@ tlimport() {
     docker compose -f "$_TIMELOG_DIR/docker-compose.yml" cp "$file" "api:/app/$(basename "$file")"
     docker compose -f "$_TIMELOG_DIR/docker-compose.yml" exec api tlimport "/app/$(basename "$file")"
 }
+# Runs on host (not Docker) — reads ~/.claude/ session data
+tlclaude() { TIMELOG_DB="$_TIMELOG_DIR/data/timelog.db" command tlclaude "$@"; }
