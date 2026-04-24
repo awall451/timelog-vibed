@@ -175,6 +175,22 @@ npm install
 npm run dev                            # frontend at localhost:5173
 ```
 
+## Known bugs to fix (CORS / easy-local-proxy)
+
+When accessed via `timelog-vibed-frontend-1.localhost` (easy-local-proxy), the frontend breaks because `VITE_API_BASE` defaults to `http://localhost:8888` and `api.py` only allows `localhost:3000/5173/4173` origins — CORS blocks it.
+
+**Current workaround** applied in `api.py`: `allow_origin_regex=r"http://.*\.localhost(:\d+)?"` — fine for local dev but not a real fix.
+
+**Proper fix options (pick one):**
+1. Change `VITE_API_BASE` default from `http://localhost:8888` to `/api` and proxy `/api/*` → API container via Caddy or the frontend's vite config. Same-origin → no CORS needed.
+2. Pass `VITE_API_BASE=http://timelog-vibed-api-1.localhost` as a build arg and use `allow_origin_regex` as a permanent addition to the API.
+
+Option 1 is cleaner. Vite proxy config in `frontend/vite.config.ts` would add:
+```ts
+server: { proxy: { '/api': 'http://localhost:8888' } }
+```
+And the production path needs Caddy to handle it too.
+
 ## Known bugs to fix
 
 * Clock live track widget - if on the 'Log Time' page and click 'Stop & log,' nothing happens. Normal behavior is to redirect to the log time page, but this breaks if you are alread on the log time page.
