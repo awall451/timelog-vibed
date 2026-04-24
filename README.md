@@ -20,6 +20,10 @@
     * [Edit and delete entries](#edit-and-delete-entries)
   * [Charts page](#charts-page)
 * [`tlhelp`](#tlhelp)
+* [`tlclaude` — Claude Code Integration](#tlclaude--claude-code-integration)
+  * [`tlclaude sessions`](#tlclaude-sessions)
+  * [`tlclaude preview`](#tlclaude-preview)
+  * [`tlclaude sync`](#tlclaude-sync)
 * [Functions](#functions)
   * [`tlupdate`](#tlupdate)
     * [`tlupdate [YYYY-MM-DD]`](#tlupdate-yyyy-mm-dd)
@@ -255,6 +259,81 @@ Please, forgive me if the image is out of date. This is going to be an ever-evol
 ![](.img/aint-nobody-got-time-for-that-kimberly-wilkins.gif)
 
 Sheesh.
+
+## `tlclaude` — Claude Code Integration
+
+> **Requires:** `pip install -e .` (one-time host install) and `source dev.sh` already in your shell.
+
+If you use [Claude Code](https://claude.ai/code), you already have a detailed record of every session you've worked — which project, when, for how long, and what you were doing. `tlclaude` reads that data and turns it into timelog entries automatically.
+
+At the end of the day, run one command:
+
+```bash
+tlclaude sync
+```
+
+It finds all your Claude sessions for today, calculates active time (idle gaps over 30 minutes are excluded), sends your conversation excerpts to Claude to infer a category and description, then asks for confirmation before inserting anything. Sessions for the same project are merged into a single entry. Hours are rounded up to the nearest 0.25.
+
+### `tlclaude sessions`
+
+Inspect raw session data for a date without touching the database. Useful for auditing before syncing.
+
+```bash
+tlclaude sessions                   # today
+tlclaude sessions --date 2026-04-22 # specific date
+```
+
+```
+Date: 2026-04-22  (18 sessions)
+
++---------------------------------+---------+----------+-------------------------------------------+-----------+
+| Project                         | Start   | Active   | Branch                                    | Session   |
+|---------------------------------+---------+----------+-------------------------------------------+-----------|
+| claude-token-tracking-dashboard | 07:24   | 3.33h    | feat/plan-detection-and-caveman-fix, main | b135b31d  |
+| timelog-vibed                   | 07:45   | 1.37h    | feature/readme-update-v2, main            | 51d70d08  |
+| claude-code-dojo                | 09:01   | 2.40h    | —                                         | c009ae39  |
+| timelog-vibed                   | 15:00   | 0.87h    | feature/entries-heatmap                   | 89fbac5a  |
+| ...                             | ...     | ...      | ...                                       | ...       |
++---------------------------------+---------+----------+-------------------------------------------+-----------+
+```
+
+### `tlclaude preview`
+
+See what entries *would* be generated — no inserts, no confirmation. Claude analyzes your session excerpts to produce the category and description. Pass `--no-ai` to skip the Claude call and use keyword heuristics instead.
+
+```bash
+tlclaude preview                    # today, AI inference
+tlclaude preview --date 2026-04-22  # specific date
+tlclaude preview --no-ai            # fast, no API call
+```
+
+```
+Proposed entries for 2026-04-24:
+
++------------------+-------------+---------+----------------------------------------------------------+
+| Project          | Category    |   Hours | Description                                              |
+|------------------+-------------+---------+----------------------------------------------------------|
+| easy-local-proxy | Debugging   |    0.5  | Debugged CORS issue breaking timelog-vibed frontend...   |
+| harbor           | Development |    1.5  | Built reverse proxy UI with collapsible sidebar nav...   |
+| timelog-vibed    | Development |    0.75 | Implemented tlclaude CLI to auto-generate timelog...     |
++------------------+-------------+---------+----------------------------------------------------------+
+```
+
+### `tlclaude sync`
+
+The main event. Previews proposed entries, asks for confirmation, then inserts. Safe to run multiple times — if an entry already exists for that project + date, it's skipped.
+
+```bash
+tlclaude sync                       # today, confirm before insert
+tlclaude sync --yes                 # skip confirmation
+tlclaude sync --date 2026-04-22     # backfill a past date
+tlclaude sync --date 2026-04-22 --yes --no-ai  # fast backfill
+```
+
+> **Note:** On first use, the `./data/` directory may be root-owned (created by Docker). If you see a read-only database error, fix it once with:
+> ```bash
+> sudo chown $USER:$USER ./data/ ./data/timelog.db
+> ```
 
 ## Functions
 
