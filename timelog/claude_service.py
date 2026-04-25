@@ -1,13 +1,28 @@
 from __future__ import annotations
 
+import glob
 import json
 import math
 import re
+import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
 from timelog import service
+
+CLAUDE_APP_DIR = Path("/claude-app")  # mounted from ~/.local/share/claude in Docker
+
+
+def _find_claude_bin() -> str:
+    """Locate the claude binary — system PATH first, then the Docker mount."""
+    import shutil
+    if shutil.which("claude"):
+        return "claude"
+    versions = sorted(glob.glob(str(CLAUDE_APP_DIR / "versions" / "[0-9]*")))
+    if versions:
+        return versions[-1]
+    return "claude"
 
 IDLE_THRESHOLD_SECS = 30 * 60
 CLAUDE_DIR = Path.home() / ".claude"
@@ -174,6 +189,43 @@ def build_description(display_texts: list[str], max_chars: int = 120) -> str:
     return desc[:max_chars] if len(desc) > max_chars else desc
 
 
+def ai_infer(
+    project: str, branches: list[str], excerpts: list[str]
+) -> tuple[str, str] | None:
+    branch_str = ", ".join(branches) if branches else "main"
+    excerpt_str = "\n".join(f"- {e[:200]}" for e in excerpts[:5])
+    prompt = (
+        "Given these conversation excerpts from a coding session, return JSON only — no other text.\n"
+        'Keys: "category" (one of: Development, Debugging, Planning, Documentation, Testing, Review)\n'
+        '      "description" (one sentence, max 120 chars, what was worked on)\n\n'
+        f"Project: {project}\n"
+        f"Git branches: {branch_str}\n"
+        f"Conversation excerpts (chronological):\n{excerpt_str}"
+    )
+    try:
+        result = subprocess.run(
+            [_find_claude_bin(), "-p", prompt],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode != 0:
+            return None
+        output = result.stdout.strip()
+        if output.startswith("```"):
+            output = re.sub(r"^```[a-z]*\n?", "", output)
+            output = re.sub(r"\n?```$", "", output)
+        data = json.loads(output)
+        category = str(data.get("category", "")).strip()
+        description = str(data.get("description", "")).strip()
+        valid_categories = {"Development", "Debugging", "Planning", "Documentation", "Testing", "Review"}
+        if category not in valid_categories:
+            category = "Development"
+        return category, description[:120] if description else ""
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, KeyError, TypeError, OSError):
+        return None
+
+
 def build_proposed_entries(date_str: str) -> list[ProposedEntry]:
     session_map = load_history(date_str)
 
@@ -200,6 +252,47 @@ def build_proposed_entries(date_str: str) -> list[ProposedEntry]:
             project=Path(project_path).name,
             category=infer_category(all_displays, all_branches),
             description=build_description(all_displays),
+            hours=math.ceil(hours * 4) / 4,
+            session_ids=[s.session_id for s in sessions],
+        ))
+
+    return sorted(entries, key=lambda e: e.project)
+
+
+def build_proposed_entries_with_ai(date_str: str) -> list[ProposedEntry]:
+    session_map = load_history(date_str)
+
+    by_project: dict[str, list[RawSession]] = {}
+    for (project_path, _), session in session_map.items():
+        by_project.setdefault(project_path, []).append(session)
+
+    entries = []
+    for project_path, sessions in by_project.items():
+        all_timestamps = sorted(ts for s in sessions for ts in s.timestamps)
+        all_displays: list[str] = []
+        for s in sorted(sessions, key=lambda s: min(s.timestamps)):
+            all_displays.extend(s.display_texts)
+
+        enrich_with_branches(sessions)
+        all_branches = list({b for s in sessions for b in s.git_branches})
+
+        hours = active_hours(all_timestamps)
+        if hours < 0.05:
+            continue
+
+        project_name = Path(project_path).name
+        result = ai_infer(project_name, all_branches, all_displays)
+        if result:
+            category, description = result
+        else:
+            category = infer_category(all_displays, all_branches)
+            description = build_description(all_displays)
+
+        entries.append(ProposedEntry(
+            date=date_str,
+            project=project_name,
+            category=category,
+            description=description,
             hours=math.ceil(hours * 4) / 4,
             session_ids=[s.session_id for s in sessions],
         ))

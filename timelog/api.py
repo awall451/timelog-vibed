@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from timelog import service
 from timelog import claude_service
+from timelog.claude_service import build_proposed_entries_with_ai
 
 app = FastAPI(title="Timelog API")
 
@@ -166,7 +167,7 @@ class ClaudeSyncRequest(BaseModel):
 def claude_preview(date: str | None = None):
     date_str = date or datetime.now().strftime("%Y-%m-%d")
     try:
-        entries = claude_service.build_proposed_entries(date_str)
+        entries = build_proposed_entries_with_ai(date_str)
     except FileNotFoundError:
         raise HTTPException(
             status_code=503,

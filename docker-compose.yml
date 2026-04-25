@@ -10,6 +10,7 @@ services:
       - ./data:/data
       - /etc/localtime:/etc/localtime:ro
       - ~/.claude:/root/.claude:ro
+      - ~/.local/share/claude:/claude-app:ro
 
   frontend:
     build: ./frontend
