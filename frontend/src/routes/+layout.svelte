@@ -36,6 +36,7 @@
         <a href="/">Dashboard</a>
         <a href="/entries">Entries</a>
         <a href="/charts">Charts</a>
+        <a href="/sync">AI Sync</a>
         <a href="/log">Log Time</a>
       </div>
       <select bind:value={theme} class="theme-select">

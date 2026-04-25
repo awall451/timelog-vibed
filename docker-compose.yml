@@ -9,6 +9,7 @@ services:
     volumes:
       - ./data:/data
       - /etc/localtime:/etc/localtime:ro
+      - ~/.claude:/root/.claude:ro
 
   frontend:
     build: ./frontend
