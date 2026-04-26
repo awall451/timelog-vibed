@@ -4,6 +4,23 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			(function () {
+				try {
+					var THEMES = ['default', 'tokyonight', 'cyberpunk', 'dracula', 'rosepine', 'catppuccin'];
+					var theme = null;
+					var raw = localStorage.getItem('timelog-settings');
+					if (raw) {
+						var parsed = JSON.parse(raw);
+						if (parsed && typeof parsed.theme === 'string') theme = parsed.theme;
+					}
+					if (!theme) theme = localStorage.getItem('theme');
+					if (theme && THEMES.indexOf(theme) !== -1 && theme !== 'default') {
+						document.documentElement.setAttribute('data-theme', theme);
+					}
+				} catch (e) {}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

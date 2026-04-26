@@ -188,9 +188,13 @@
     padding: 0;
   }
 
+  :global(html, body) {
+    margin: 0;
+    background: var(--bg);
+  }
+
   :global(body) {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
     color: var(--text);
     min-height: 100vh;
   }
