@@ -263,6 +263,8 @@ Sheesh.
 ## `tlclaude` — Claude Code Integration
 
 > **Requires:** `pip install -e .` (one-time host install) and `source dev.sh` already in your shell.
+>
+> **Local-only feature.** `tlclaude` and the AI Sync page both rely on `~/.claude` and the `claude` binary being mounted into the API container from your host. They work great for single-user local deployments but won't function on a hosted/multi-user setup — the server has no access to a remote user's Claude Code session data. Multi-node strategy is tracked in `CLAUDE.md` under *Future Vision*.
 
 If you use [Claude Code](https://claude.ai/code), you already have a detailed record of every session you've worked — which project, when, for how long, and what you were doing. `tlclaude` reads that data and turns it into timelog entries automatically.
 

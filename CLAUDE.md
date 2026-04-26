@@ -161,6 +161,21 @@ invoices(id, org_id, project_id, period_start, period_end, pdf_path, generated_a
 - Core entry CRUD logic — unchanged
 - CLI — single mode only
 
+### AI Sync / `tlclaude` — multi-node strategy (TBD)
+
+**Today (single mode):** The AI Sync page and `tlclaude` CLI both depend on the API container having direct read access to the host's `~/.claude` directory (session JSONL files) and `~/.local/share/claude` (the `claude` binary). Both are bind-mounted in `docker-compose.yml`. This is the fast path and works perfectly for one user on one machine.
+
+**The problem in multi mode:** Each user's Claude Code session data lives on their own laptop. A central API server has no way to read it. We need to design how this feature works — or whether it works — for hosted/team deployments before building it.
+
+**Options to evaluate (pick one before implementing):**
+
+1. **Local-only feature, gated by mode** — In `TIMELOG_MODE=multi`, hide the AI Sync page and disable `/claude/preview` and `/claude/sync` endpoints entirely. Simplest path. Users who want AI Sync run a local single-mode instance and POST entries to the team server via API.
+2. **Local sidecar agent per user** — A small daemon installed on each user's machine reads `~/.claude`, summarizes sessions (project, timestamps, branches, sanitized excerpts), and uploads structured proposals to the team server. Server runs `ai_infer` against its own LLM key. Preserves the `/sync` page UX. Requires a separate install step per user.
+3. **Browser-side parsing** — User picks their `.claude` folder via the File System Access API; the browser parses `history.jsonl` and POSTs structured session data. No server-side file access, no sidecar, but conversation excerpts traverse the network — privacy and excerpt-redaction policy must be airtight.
+4. **Standalone desktop app** — Ship AI Sync as an Electron/Tauri app that runs the existing pipeline locally and pushes finished entries to the team server. Server stays oblivious to Claude. Highest engineering cost.
+
+**Recommendation:** Start with option 1 when multi mode lands. Revisit options 2 or 3 if users actually ask for AI Sync in team deployments. Until then, AI Sync ships as a single-mode-only feature and is documented as such in the README.
+
 ### Monetization (future consideration)
 Hosted SaaS: run `timelog.io`, charge $5-8/mo for convenience. Code stays MIT. No enterprise licensing complexity. Decide after the app has real users.
 
