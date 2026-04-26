@@ -335,6 +335,24 @@ tlclaude sync --date 2026-04-22 --yes --no-ai  # fast backfill
 > sudo chown $USER:$USER ./data/ ./data/timelog.db
 > ```
 
+### AI Sync page
+
+If the terminal isn't your thing, the same flow lives in the browser at `/sync` as **AI Sync**. Pick a date, click **Analyze Sessions**, and the API runs the exact same `build_proposed_entries_with_ai` pipeline the CLI uses — your conversation excerpts go to Claude, which infers a category and a one-sentence description per project.
+
+A spinner and status banner show up while Claude is thinking, so you know inference is in progress (it usually takes 10–30 seconds depending on how many projects you touched that day):
+
+![](.img/screenshots/ai_sync_loading.png)
+
+Once the analysis completes, a table of proposed entries appears. Each row is one project, with the AI-generated description, inferred category, and active hours rounded up to the nearest 0.25:
+
+![](.img/screenshots/ai_sync_results.png)
+
+Every cell except the project is **click-to-edit** — category becomes a dropdown, hours becomes a number spinner, description becomes a text input. Tweak whatever Claude got wrong before syncing:
+
+![](.img/screenshots/ai_sync_inline_edit.png)
+
+Uncheck any rows you don't want, then hit **Sync Selected** to write them to the database. Rows that already exist for that project + date are dimmed and skipped automatically.
+
 ## Functions
 
 The CLI commands make updating and viewing your timelog a breeze.

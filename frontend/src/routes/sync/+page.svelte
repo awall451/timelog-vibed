@@ -101,9 +101,24 @@
       onchange={() => { analyzed = false; entries = []; syncResult = null; }}
     />
     <button class="btn-primary" onclick={analyze} disabled={loading}>
-      {loading ? 'Analyzing…' : 'Analyze Sessions'}
+      {#if loading}
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Analyzing…</span>
+      {:else}
+        Analyze Sessions
+      {/if}
     </button>
   </div>
+
+  {#if loading}
+    <div class="loading-status" role="status" aria-live="polite">
+      <span class="spinner spinner-lg" aria-hidden="true"></span>
+      <div class="loading-text">
+        <strong>Analyzing Claude sessions for {date}…</strong>
+        <span class="loading-hint">Running AI inference on each project — may take 10–30 seconds.</span>
+      </div>
+    </div>
+  {/if}
 
   {#if error}
     <div class="error-banner">{error}</div>
@@ -264,13 +279,16 @@
   }
 
   .btn-primary {
+    align-items: center;
     background: var(--accent);
     border: none;
     border-radius: 6px;
     color: #fff;
     cursor: pointer;
+    display: inline-flex;
     font-size: 0.875rem;
     font-weight: 600;
+    gap: 0.5rem;
     padding: 0.5rem 1.25rem;
     transition: opacity 0.15s;
   }
@@ -278,6 +296,55 @@
   .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .spinner {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    display: inline-block;
+    height: 0.875rem;
+    width: 0.875rem;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .spinner-lg {
+    border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+    border-top-color: var(--accent);
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-status {
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    gap: 0.875rem;
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .loading-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .loading-text strong {
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .loading-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
   }
 
   .error-banner {
