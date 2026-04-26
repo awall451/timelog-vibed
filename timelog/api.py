@@ -1,9 +1,12 @@
 import tempfile
 import os
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from timelog import service
+from timelog import claude_service
+from timelog.claude_service import build_proposed_entries_with_ai
 
 app = FastAPI(title="Timelog API")
 
@@ -144,6 +147,57 @@ def import_csv(file: UploadFile = File(...)):
     finally:
         os.unlink(tmp_path)
     return {"imported": count}
+
+
+# ── Claude AI Sync ─────────────────────────────────────────────────────────
+
+class ClaudeEntry(BaseModel):
+    project: str
+    category: str
+    description: str = ""
+    hours: float = Field(gt=0)
+
+
+class ClaudeSyncRequest(BaseModel):
+    date: str
+    entries: list[ClaudeEntry]
+
+
+@app.get("/claude/preview")
+def claude_preview(date: str | None = None):
+    date_str = date or datetime.now().strftime("%Y-%m-%d")
+    try:
+        entries = build_proposed_entries_with_ai(date_str)
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Claude history not found. "
+                "Mount ~/.claude into the container by adding "
+                "\"- ~/.claude:/root/.claude:ro\" to the api volumes in docker-compose.yml, "
+                "then run tlstart to rebuild."
+            ),
+        )
+    new_entries, skipped = claude_service.check_duplicates(entries)
+    for e in skipped:
+        e.already_exists = True
+    return {"date": date_str, "entries": [
+        {
+            "project": e.project,
+            "category": e.category,
+            "description": e.description,
+            "hours": e.hours,
+            "already_exists": e.already_exists,
+        }
+        for e in entries
+    ]}
+
+
+@app.post("/claude/sync")
+def claude_sync(body: ClaudeSyncRequest):
+    for e in body.entries:
+        service.add_entry(e.project, e.category, e.description, e.hours, body.date)
+    return {"inserted": len(body.entries)}
 
 
 def run():

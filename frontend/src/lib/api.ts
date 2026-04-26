@@ -27,6 +27,14 @@ export interface NewEntry {
   date?: string;
 }
 
+export interface ProposedEntry {
+  project: string;
+  category: string;
+  description: string;
+  hours: number;
+  already_exists: boolean;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
   if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -83,4 +91,10 @@ export const api = {
   },
   projects: ()  => get<string[]>('/projects'),
   categories: () => get<string[]>('/categories'),
+  claude: {
+    preview: (date: string) =>
+      get<{ date: string; entries: ProposedEntry[] }>(`/claude/preview?date=${date}`),
+    sync: (date: string, entries: NewEntry[]) =>
+      post<{ inserted: number }>('/claude/sync', { date, entries }),
+  },
 };
