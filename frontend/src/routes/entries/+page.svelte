@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api, type Entry, type NewEntry } from '$lib/api';
+  import { settings } from '$lib/settings.svelte';
 
   let allEntries  = $state<Entry[]>([]);
   let loading     = $state(true);
@@ -88,10 +89,13 @@
   });
 
   let gridData = $derived.by(() => {
+    const goal      = settings.dailyGoalHours;
     const todayDate = new Date(today + 'T00:00:00');
-    const todayDow  = todayDate.getDay();
+    const todayDow  = todayDate.getDay(); // 0=Sun..6=Sat
+    // When weekStart='mon', shift so Monday is row 0 (offsets are 0=Mon..6=Sun).
+    const dowOffset = settings.weekStart === 'mon' ? (todayDow + 6) % 7 : todayDow;
     const startDate = new Date(todayDate);
-    startDate.setDate(startDate.getDate() - 364 - todayDow);
+    startDate.setDate(startDate.getDate() - 364 - dowOffset);
 
     type Cell = { date: string; hours: number; level: number; inRange: boolean; col: number; row: number };
     const cells: Cell[] = [];
@@ -101,7 +105,12 @@
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
       const hrs     = heatmapHours.get(dateStr) ?? 0;
-      const level   = hrs === 0 ? 0 : hrs < 2 ? 1 : hrs < 4 ? 2 : hrs < 6 ? 3 : 4;
+      const level   = hrs === 0
+        ? 0
+        : hrs < goal * 0.25 ? 1
+        : hrs < goal * 0.5  ? 2
+        : hrs < goal * 0.75 ? 3
+        : 4;
       cells.push({
         date: dateStr, hours: hrs, level,
         inRange: dateStr <= today,
@@ -196,6 +205,15 @@
       // silent — entry stays in list
     } finally {
       deleting = false;
+    }
+  }
+
+  function startDelete(id: number) {
+    if (settings.confirmDelete) {
+      confirmDelete(id);
+    } else {
+      deleteId = id;
+      doDelete();
     }
   }
 </script>
@@ -363,7 +381,7 @@
                         </div>
                       {:else}
                         <button onclick={(e) => { e.stopPropagation(); openEdit(entry); }}>Edit</button>
-                        <button class="danger" onclick={(e) => { e.stopPropagation(); confirmDelete(entry.id); }}>Delete</button>
+                        <button class="danger" onclick={(e) => { e.stopPropagation(); startDelete(entry.id); }}>Delete</button>
                       {/if}
                     </div>
                   {/if}
@@ -429,7 +447,7 @@
         <div class="field-row">
           <div class="field">
             <label for="edit-hours">Hours</label>
-            <input id="edit-hours" type="number" step="0.25" min="0.25" bind:value={editHours} />
+            <input id="edit-hours" type="number" step="any" min="0.01" bind:value={editHours} />
           </div>
           <div class="field">
             <label for="edit-date">Date</label>

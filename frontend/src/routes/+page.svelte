@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api, type Entry, type ProjectSum } from '$lib/api';
+  import { settings } from '$lib/settings.svelte';
 
   const todayEntries   = api.entries.today();
   const todayHours     = api.sum.today();
@@ -18,10 +19,14 @@
   {:then { hours }}
     <div class="stat-card">
       <span class="stat-label">Hours today</span>
-      <span class="stat-value" class:on-track={hours >= 6} class:low={hours < 4}>
+      <span
+        class="stat-value"
+        class:on-track={hours >= settings.dailyGoalHours * 0.75}
+        class:low={hours < settings.dailyGoalHours * 0.5}
+      >
         {hours.toFixed(2)}
       </span>
-      <span class="stat-sub">of 8.00 goal</span>
+      <span class="stat-sub">of {settings.dailyGoalHours.toFixed(2)} goal</span>
     </div>
   {/await}
 

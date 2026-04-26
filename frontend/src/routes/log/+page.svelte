@@ -89,7 +89,7 @@
     <div class="row">
       <div class="field">
         <label for="hours">Hours</label>
-        <input id="hours" type="number" step="0.25" min="0.25" bind:value={hours} placeholder="1.5" />
+        <input id="hours" type="number" step="any" min="0.01" bind:value={hours} placeholder="1.5" />
       </div>
       <div class="field">
         <label for="date">Date <span class="optional">(defaults to today)</span></label>
