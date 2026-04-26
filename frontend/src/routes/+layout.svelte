@@ -1,25 +1,14 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import TimerWidget from '$lib/TimerWidget.svelte';
+  import SettingsButton from '$lib/SettingsButton.svelte';
+  import { settings } from '$lib/settings.svelte';
 
-  const THEMES = ['default', 'tokyonight', 'cyberpunk', 'dracula', 'rosepine', 'catppuccin'] as const;
-  type Theme = typeof THEMES[number];
-
-  function getInitialTheme(): Theme {
-    if (browser) {
-      const saved = localStorage.getItem('theme') as Theme;
-      if (saved && (THEMES as readonly string[]).includes(saved)) return saved;
-    }
-    return 'default';
-  }
-
-  let theme = $state<Theme>(getInitialTheme());
   let { children } = $props();
 
   $effect(() => {
     if (browser) {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
+      document.documentElement.setAttribute('data-theme', settings.theme);
     }
   });
 </script>
@@ -36,10 +25,12 @@
         <a href="/">Dashboard</a>
         <a href="/entries">Entries</a>
         <a href="/charts">Charts</a>
-        <a href="/sync">AI Sync</a>
+        {#if settings.aiSyncEnabled}
+          <a href="/sync">AI Sync</a>
+        {/if}
         <a href="/log">Log Time</a>
       </div>
-      <select bind:value={theme} class="theme-select">
+      <select bind:value={settings.theme} class="theme-select">
         <option value="default">Default</option>
         <option value="tokyonight">Tokyo Night</option>
         <option value="cyberpunk">Cyberpunk</option>
@@ -55,6 +46,7 @@
   </main>
 </div>
 
+<SettingsButton />
 <TimerWidget />
 
 <style>

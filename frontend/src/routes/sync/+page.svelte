@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api, type ProposedEntry } from '$lib/api';
+  import { settings } from '$lib/settings.svelte';
 
   const CATEGORIES = ['Development', 'Debugging', 'Planning', 'Documentation', 'Testing', 'Review'];
 
@@ -92,6 +93,16 @@
     <h1>AI Sync</h1>
     <p class="subtitle">Generate timelog entries from your Claude Code sessions</p>
   </div>
+
+  {#if !settings.aiSyncEnabled}
+    <div class="disabled-state">
+      <p class="disabled-title">AI Sync is disabled.</p>
+      <p class="disabled-hint">
+        Turn it on in <a href="/settings/ai-sync">Settings → AI Sync</a> to analyze
+        your Claude Code session history.
+      </p>
+    </div>
+  {:else}
 
   <div class="controls">
     <input
@@ -234,6 +245,8 @@
     </div>
   {:else if !analyzed && !loading}
     <div class="empty">Pick a date and click <strong>Analyze Sessions</strong> to see your Claude activity.</div>
+  {/if}
+
   {/if}
 </div>
 
@@ -496,5 +509,35 @@
     display: flex;
     justify-content: flex-end;
     margin-top: 1rem;
+  }
+
+  .disabled-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .disabled-title {
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+  }
+
+  .disabled-hint {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  .disabled-hint a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .disabled-hint a:hover {
+    text-decoration: underline;
   }
 </style>

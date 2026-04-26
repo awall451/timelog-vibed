@@ -1,5 +1,6 @@
 <script lang="ts">
   import { api, type Entry } from '$lib/api';
+  import { settings } from '$lib/settings.svelte';
 
   let allEntries = $state<Entry[]>([]);
   let loading    = $state(true);
@@ -102,9 +103,9 @@
   const LC_W = 580, LC_H = 140;
   const L_SVG_W = LP_L + LC_W + LP_R;
   const L_SVG_H = LP_T + LC_H + LP_B;
-  const GOAL = 8;
 
   let paceData = $derived.by(() => {
+    const goal = settings.dailyGoalHours;
     const days: { date: string; hours: number }[] = [];
     for (let i = LINE_DAYS - 1; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000);
@@ -112,14 +113,14 @@
       const hours = allEntries.filter(e => e.date === date).reduce((s, e) => s + e.hours, 0);
       days.push({ date, hours });
     }
-    const maxH = Math.max(...days.map(d => d.hours), GOAL);
+    const maxH = Math.max(...days.map(d => d.hours), goal);
     const xStep = LC_W / (LINE_DAYS - 1);
     const pts = days.map((d, i) => ({
       ...d,
       x: LP_L + i * xStep,
       y: LP_T + LC_H * (1 - d.hours / maxH)
     }));
-    const goalY = LP_T + LC_H * (1 - GOAL / maxH);
+    const goalY = LP_T + LC_H * (1 - goal / maxH);
     const polyline = pts.map(p => `${p.x},${p.y}`).join(' ');
     const areaD = `M ${pts[0].x} ${LP_T + LC_H} ${pts.map(p => `L ${p.x} ${p.y}`).join(' ')} L ${pts[pts.length - 1].x} ${LP_T + LC_H} Z`;
     const xLabels = [0, 7, 14, 21, 27].map(i => ({ x: LP_L + i * xStep, label: days[i].date.slice(5) }));
@@ -272,7 +273,7 @@
 
     <!-- Pace line -->
     <div class="chart-card">
-      <h2>Daily Pace <span class="sub">last 28 days · dashed = 8h goal</span></h2>
+      <h2>Daily Pace <span class="sub">last 28 days · dashed = {settings.dailyGoalHours}h goal</span></h2>
       <svg viewBox="0 0 {L_SVG_W} {L_SVG_H}" style="width:100%;display:block">
         {#each [0, 0.5, 1] as frac}
           {@const ly = LP_T + LC_H * (1 - frac)}

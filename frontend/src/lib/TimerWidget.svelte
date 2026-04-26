@@ -2,6 +2,7 @@
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { api } from '$lib/api';
+  import { settings } from '$lib/settings.svelte';
 
   type TimerStatus = 'idle' | 'running';
 
@@ -78,10 +79,16 @@
     timerState = { ...timerState, status: 'running', startedAt: Date.now() };
   }
 
+  function roundHours(rawHours: number, mins: number): number {
+    if (mins === 0) return Math.max(0.01, Math.round(rawHours * 1000) / 1000);
+    const fraction = mins / 60;
+    return Math.max(fraction, Math.round(rawHours / fraction) * fraction);
+  }
+
   function stop() {
     if (!timerState.startedAt) return;
     const rawHours = (Date.now() - timerState.startedAt) / 3600000;
-    const hours = Math.max(0.25, Math.round(rawHours * 4) / 4);
+    const hours = roundHours(rawHours, settings.timerRoundingMinutes);
     if (browser) {
       localStorage.setItem(PREFILL_KEY, JSON.stringify({
         project: timerState.project,
