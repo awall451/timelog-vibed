@@ -202,8 +202,8 @@
                   <input
                     type="number"
                     bind:value={entry.hours}
-                    step="0.25"
-                    min="0.25"
+                    step="any"
+                    min="0.01"
                     max="24"
                     class="hours-input"
                     onblur={() => entry.editingHours = false}

@@ -447,7 +447,7 @@
         <div class="field-row">
           <div class="field">
             <label for="edit-hours">Hours</label>
-            <input id="edit-hours" type="number" step="0.25" min="0.25" bind:value={editHours} />
+            <input id="edit-hours" type="number" step="any" min="0.01" bind:value={editHours} />
           </div>
           <div class="field">
             <label for="edit-date">Date</label>
