@@ -11,6 +11,7 @@
 * [Log Time](#log-time)
 * [Live Timer](#live-timer)
 * [Themes](#themes)
+* [Charts](#charts)
 * [Entries](#entries)
   * [Activity heatmap](#activity-heatmap)
   * [Sorting](#sorting)
@@ -18,7 +19,6 @@
   * [Date filter](#date-filter)
   * [Edit and delete entries](#edit-and-delete-entries)
   * [CLI equivalents](#cli-equivalents)
-* [Charts](#charts)
 * [`tlclaude` — Claude Code Integration](#tlclaude--claude-code-integration)
   * [`tlclaude sessions`](#tlclaude-sessions)
   * [`tlclaude preview`](#tlclaude-preview)
@@ -169,6 +169,22 @@ Six themes are available from the selector in the top navigation bar. Your choic
 </tr>
 </table>
 
+## Charts
+
+The **Charts** page (`/charts`) gives you a visual breakdown of where your time goes. All charts respond to the **From / To** date range picker in the top-right.
+
+![](.img/screenshots/charts.png)
+
+**Hours by Project** and **Hours by Category** donuts show the share of total hours for each, with exact hour counts and percentages in the legend.
+
+![](.img/screenshots/charts_donuts.png)
+
+**Daily Hours** shows a stacked bar chart of the last 14 days, with each project as a color segment. Gaps in the bars are days with no logged time.
+
+![](.img/screenshots/charts_stacked_bar.png)
+
+The page also includes a **Weekly Pace** sparkline (last 28 days vs. an 8h/day goal line) and a **Project × Category** heat matrix showing exactly where hours go across both dimensions.
+
 ## Entries
 
 The **Entries** page shows your full history. A GitHub-style activity heatmap sits above the table, followed by a sortable, filterable entry list. The footer shows the entry count and total hours for the current view.
@@ -294,22 +310,6 @@ $ tlshow month 2026-04
 ```
 
 Run `tlhelp` at any time for a full CLI reference printed to your terminal.
-
-## Charts
-
-The **Charts** page (`/charts`) gives you a visual breakdown of where your time goes. All charts respond to the **From / To** date range picker in the top-right.
-
-![](.img/screenshots/charts.png)
-
-**Hours by Project** and **Hours by Category** donuts show the share of total hours for each, with exact hour counts and percentages in the legend.
-
-![](.img/screenshots/charts_donuts.png)
-
-**Daily Hours** shows a stacked bar chart of the last 14 days, with each project as a color segment. Gaps in the bars are days with no logged time.
-
-![](.img/screenshots/charts_stacked_bar.png)
-
-The page also includes a **Weekly Pace** sparkline (last 28 days vs. an 8h/day goal line) and a **Project × Category** heat matrix showing exactly where hours go across both dimensions.
 
 ## `tlclaude` — Claude Code Integration
 
