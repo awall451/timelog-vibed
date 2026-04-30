@@ -12,6 +12,12 @@
   let rangeStart = $state(ninetyAgo);
   let rangeEnd   = $state(todayStr);
 
+  let project  = $state('');
+  let category = $state('');
+
+  const projectSuggestions  = api.projects();
+  const categorySuggestions = api.categories();
+
   api.entries.all()
     .then(e  => { allEntries = e; loading = false; })
     .catch(() => { loadError = true; loading = false; });
@@ -19,7 +25,21 @@
   const PALETTE = ['#6366f1','#22c55e','#f59e0b','#ec4899','#06b6d4','#f97316','#84cc16','#a855f7','#14b8a6','#ef4444'];
   const pc = (i: number) => PALETTE[i % PALETTE.length];
 
-  let scoped = $derived(allEntries.filter(e => e.date >= rangeStart && e.date <= rangeEnd));
+  function toggleProject(name: string)  { project  = (project  === name) ? '' : name; }
+  function toggleCategory(name: string) { category = (category === name) ? '' : name; }
+  function toggleCell(p: string, c: string) {
+    const matches = project === p && category === c;
+    if (matches) { project = ''; category = ''; }
+    else         { project = p;  category = c; }
+  }
+  function clearFilters() { project = ''; category = ''; }
+
+  let pcFiltered = $derived(allEntries.filter(e =>
+    (!project  || e.project  === project) &&
+    (!category || e.category === category)
+  ));
+
+  let scoped = $derived(pcFiltered.filter(e => e.date >= rangeStart && e.date <= rangeEnd));
 
   let byProject = $derived.by(() => {
     const m = new Map<string, number>();
@@ -37,6 +57,24 @@
     const total = data.reduce((s, d) => s + d.hours, 0);
     if (total === 0) return { segs: [], total: 0 };
     const cx = 100, cy = 100, r = 72, ri = 48;
+    const nonZero = data.filter(d => d.hours > 0);
+    if (nonZero.length === 1) {
+      const d = nonZero[0];
+      const i = data.indexOf(d);
+      const path = [
+        `M ${cx - r} ${cy}`,
+        `A ${r} ${r} 0 1 1 ${cx + r} ${cy}`,
+        `A ${r} ${r} 0 1 1 ${cx - r} ${cy}`,
+        `M ${cx - ri} ${cy}`,
+        `A ${ri} ${ri} 0 1 0 ${cx + ri} ${cy}`,
+        `A ${ri} ${ri} 0 1 0 ${cx - ri} ${cy}`,
+        'Z'
+      ].join(' ');
+      return {
+        segs: [{ path, color: pc(i), name: d.name, hours: d.hours, pct: 100 }],
+        total
+      };
+    }
     let angle = -Math.PI / 2;
     const segs = data.map((d, i) => {
       const frac  = d.hours / total;
@@ -73,11 +111,11 @@
       const d = new Date(Date.now() - i * 86400000);
       days.push(d.toISOString().split('T')[0]);
     }
-    const allProjects = [...new Set(allEntries.map(e => e.project))].sort();
+    const allProjects = [...new Set(pcFiltered.map(e => e.project))].sort();
     const pidx = Object.fromEntries(allProjects.map((p, i) => [p, i]));
     const dayData = days.map(date => {
       const byProj: Record<string, number> = {};
-      for (const e of allEntries) if (e.date === date) byProj[e.project] = (byProj[e.project] ?? 0) + e.hours;
+      for (const e of pcFiltered) if (e.date === date) byProj[e.project] = (byProj[e.project] ?? 0) + e.hours;
       const total = Object.values(byProj).reduce((s, h) => s + h, 0);
       return { date, byProj, total };
     });
@@ -110,7 +148,7 @@
     for (let i = LINE_DAYS - 1; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000);
       const date = d.toISOString().split('T')[0];
-      const hours = allEntries.filter(e => e.date === date).reduce((s, e) => s + e.hours, 0);
+      const hours = pcFiltered.filter(e => e.date === date).reduce((s, e) => s + e.hours, 0);
       days.push({ date, hours });
     }
     const maxH = Math.max(...days.map(d => d.hours), goal);
@@ -147,18 +185,41 @@
 <div class="page">
   <div class="page-header">
     <h1>Charts</h1>
-    <div class="date-range">
-      <label>
-        <span>From</span>
-        <input type="date" bind:value={rangeStart} max={rangeEnd} />
-      </label>
-      <span class="range-sep">→</span>
-      <label>
-        <span>To</span>
-        <input type="date" bind:value={rangeEnd} min={rangeStart} max={todayStr} />
-      </label>
+    <div class="filter-bar">
+      {#await projectSuggestions then list}
+        <select bind:value={project} aria-label="Filter by project">
+          <option value="">All projects</option>
+          {#each list as p}<option value={p}>{p}</option>{/each}
+        </select>
+      {/await}
+      {#await categorySuggestions then list}
+        <select bind:value={category} aria-label="Filter by category">
+          <option value="">All categories</option>
+          {#each list as c}<option value={c}>{c}</option>{/each}
+        </select>
+      {/await}
+      <div class="date-range">
+        <label>
+          <span>From</span>
+          <input type="date" bind:value={rangeStart} max={rangeEnd} />
+        </label>
+        <span class="range-sep">→</span>
+        <label>
+          <span>To</span>
+          <input type="date" bind:value={rangeEnd} min={rangeStart} max={todayStr} />
+        </label>
+      </div>
     </div>
   </div>
+
+  {#if project || category}
+    <div class="active-filters">
+      <span class="muted">Filtering:</span>
+      {#if project}<span class="chip">{project} <button onclick={() => project = ''} aria-label="Clear project filter">×</button></span>{/if}
+      {#if category}<span class="chip">{category} <button onclick={() => category = ''} aria-label="Clear category filter">×</button></span>{/if}
+      <button class="clear-all" onclick={clearFilters}>Clear all</button>
+    </div>
+  {/if}
 
   {#if loadError}
     <p class="error">Could not load entries — is <code>tlserve</code> running?</p>
@@ -176,8 +237,11 @@
             <svg viewBox="0 0 200 200" class="donut-svg">
               {#each projectDonut.segs as seg}
                 <path
-                  d={seg.path} fill={seg.color} opacity="0.9"
+                  d={seg.path} fill={seg.color}
                   class="donut-seg"
+                  class:dim={project && project !== seg.name}
+                  class:active={project === seg.name}
+                  onclick={() => toggleProject(seg.name)}
                   onmouseenter={(e) => tooltip = { text: `${seg.name}: ${seg.hours.toFixed(1)}h (${seg.pct}%)`, x: e.clientX + 12, y: e.clientY - 36 }}
                   onmouseleave={() => tooltip = null}
                 />
@@ -187,7 +251,14 @@
             </svg>
             <ul class="donut-legend">
               {#each projectDonut.segs as seg}
-                <li>
+                <li
+                  class="leg-row"
+                  class:active={project === seg.name}
+                  onclick={() => toggleProject(seg.name)}
+                  onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleProject(seg.name); } }}
+                  role="button"
+                  tabindex="0"
+                >
                   <span class="dot" style="background:{seg.color}"></span>
                   <span class="leg-name">{seg.name}</span>
                   <span class="leg-val">{seg.hours.toFixed(1)}h</span>
@@ -208,8 +279,11 @@
             <svg viewBox="0 0 200 200" class="donut-svg">
               {#each categoryDonut.segs as seg}
                 <path
-                  d={seg.path} fill={seg.color} opacity="0.9"
+                  d={seg.path} fill={seg.color}
                   class="donut-seg"
+                  class:dim={category && category !== seg.name}
+                  class:active={category === seg.name}
+                  onclick={() => toggleCategory(seg.name)}
                   onmouseenter={(e) => tooltip = { text: `${seg.name}: ${seg.hours.toFixed(1)}h (${seg.pct}%)`, x: e.clientX + 12, y: e.clientY - 36 }}
                   onmouseleave={() => tooltip = null}
                 />
@@ -219,7 +293,14 @@
             </svg>
             <ul class="donut-legend">
               {#each categoryDonut.segs as seg}
-                <li>
+                <li
+                  class="leg-row"
+                  class:active={category === seg.name}
+                  onclick={() => toggleCategory(seg.name)}
+                  onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCategory(seg.name); } }}
+                  role="button"
+                  tabindex="0"
+                >
                   <span class="dot" style="background:{seg.color}"></span>
                   <span class="leg-name">{seg.name}</span>
                   <span class="leg-val">{seg.hours.toFixed(1)}h</span>
@@ -318,20 +399,41 @@
             <thead>
               <tr>
                 <th></th>
-                {#each pcMatrix.categories as cat}<th class="mh">{cat}</th>{/each}
+                {#each pcMatrix.categories as cat}
+                  <th
+                    class="mh clickable"
+                    class:active={category === cat}
+                    onclick={() => toggleCategory(cat)}
+                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCategory(cat); } }}
+                    role="button"
+                    tabindex="0"
+                  >{cat}</th>
+                {/each}
               </tr>
             </thead>
             <tbody>
               {#each pcMatrix.projects as proj, pi}
                 <tr>
-                  <td class="ml">{proj}</td>
-                  {#each pcMatrix.categories as _cat, ci}
+                  <td
+                    class="ml clickable"
+                    class:active={project === proj}
+                    onclick={() => toggleProject(proj)}
+                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleProject(proj); } }}
+                    role="button"
+                    tabindex="0"
+                  >{proj}</td>
+                  {#each pcMatrix.categories as cat, ci}
                     {@const h = pcMatrix.grid[pi][ci]}
                     {@const pct = Math.round((h / pcMatrix.max) * 80)}
                     <td
                       class="mc"
+                      class:active={project === proj && category === cat}
                       style="background: color-mix(in srgb, var(--accent) {pct}%, var(--surface2))"
-                      onmouseenter={(e) => tooltip = { text: `${proj} × ${pcMatrix.categories[ci]}: ${h.toFixed(1)}h`, x: e.clientX + 12, y: e.clientY - 36 }}
+                      onclick={() => toggleCell(proj, cat)}
+                      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCell(proj, cat); } }}
+                      role="button"
+                      tabindex="0"
+                      onmouseenter={(e) => tooltip = { text: `${proj} × ${cat}: ${h.toFixed(1)}h`, x: e.clientX + 12, y: e.clientY - 36 }}
                       onmouseleave={() => tooltip = null}
                     >
                       {#if h > 0}
@@ -386,6 +488,68 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-bar select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .filter-bar select:focus { border-color: var(--accent); }
+
+  .active-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+
+  .chip button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.8;
+  }
+  .chip button:hover { opacity: 1; }
+
+  .clear-all {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+  }
+  .clear-all:hover { border-color: var(--accent); color: var(--text); }
 
   .date-range {
     display: flex;
@@ -444,10 +608,15 @@
 
   .donut-seg {
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, stroke-width 0.15s;
+    opacity: 0.9;
+    stroke: var(--surface);
+    stroke-width: 0;
   }
 
-  .donut-seg:hover { opacity: 0.7; }
+  .donut-seg:hover { opacity: 1; }
+  .donut-seg.dim { opacity: 0.25; }
+  .donut-seg.active { opacity: 1; stroke: var(--text); stroke-width: 2; }
 
   .donut-big {
     font-size: 28px;
@@ -478,6 +647,17 @@
     gap: 0.5rem;
     font-size: 0.83rem;
   }
+
+  .leg-row {
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    margin: -0.2rem -0.4rem;
+    border-radius: 5px;
+    transition: background 0.12s;
+  }
+  .leg-row:hover { background: var(--surface2); }
+  .leg-row.active { background: var(--surface2); outline: 1px solid var(--accent); }
+  .leg-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
   .dot {
     width: 8px;
@@ -580,6 +760,15 @@
   }
 
   .mc:hover { opacity: 0.8; cursor: pointer; }
+  .mc.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .mc:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .clickable { cursor: pointer; transition: color 0.12s; }
+  .ml.clickable:hover { color: var(--text); }
+  .ml.active { color: var(--accent); font-weight: 700; }
+  .mh.clickable:hover { color: var(--text); }
+  .mh.active { color: var(--accent); font-weight: 700; }
+  .clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 
   .mv {
     font-size: 0.78rem;
