@@ -66,7 +66,7 @@ async function del(path: string): Promise<void> {
   if (!res.ok) throw new Error(`API error: ${res.status}`);
 }
 
-export const api = {
+const realApi = {
   entries: {
     all: ()              => get<Entry[]>('/entries'),
     today: ()            => get<Entry[]>('/entries/today'),
@@ -98,3 +98,7 @@ export const api = {
       post<{ inserted: number }>('/claude/sync', { date, entries }),
   },
 };
+
+export const api: typeof realApi = import.meta.env.VITE_DEMO_MODE
+  ? ((await import('./demo/api')).api as typeof realApi)
+  : realApi;

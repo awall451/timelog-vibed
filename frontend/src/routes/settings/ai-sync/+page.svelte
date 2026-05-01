@@ -4,6 +4,14 @@
 
 <h1>AI Sync</h1>
 
+{#if import.meta.env.VITE_DEMO_MODE}
+  <div class="info-box">
+    <strong>Disabled in this demo</strong>
+    AI Sync is a <strong>local-only</strong> feature. It reads your Claude Code
+    session history from <code>~/.claude</code> on disk, which the in-browser
+    demo can't access. Run timelog locally to enable it.
+  </div>
+{:else}
 <div class="setting-row">
   <div class="setting-info">
     <label for="ai-toggle">Enable AI Sync</label>
@@ -38,6 +46,7 @@
     <li>Backend endpoints stay reachable; this is a UI-level toggle only.</li>
   </ul>
 </div>
+{/if}
 
 <style>
   h1 {

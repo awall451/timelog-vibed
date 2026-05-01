@@ -79,6 +79,23 @@ tlstop   # stop everything
 
 Your database is created automatically at `./data/timelog.db` on first run.
 
+## Hosted Demo (browser-only)
+
+A separate Docker image builds a fully static, browser-only version of the app for public hosting. Each visitor gets their own isolated copy of the seed dataset — entries they add, edit, or delete only live in their own browser (persisted to IndexedDB) and never affect other visitors. There is no API server, no shared database, and no auth.
+
+```bash
+docker compose -f docker-compose.demo.yml up --build -d
+# open http://localhost:3002
+```
+
+The demo image (`frontend/Dockerfile.demo`) builds the SvelteKit frontend with `VITE_DEMO_MODE=true`, swaps in a [`sql.js`](https://sql.js.org/)-backed in-browser SQLite that is seeded from `./data/timelog.db` shipped as a static asset, and serves the result via `nginx:alpine`. Visitors can hit **Settings → Data → Reset demo data** at any time to wipe their changes and restore the seed.
+
+**What's disabled in the demo:**
+- **AI Sync** — local-only feature; requires direct access to `~/.claude` on disk. The nav link is hidden, and the `/sync` and `/settings/ai-sync` pages render a placeholder.
+- **CLI commands** (`tlshow`, `tlsum`, `tlclaude`, etc.) — these talk to the API container; the demo has no API.
+
+The main `docker-compose.yml` and `frontend/Dockerfile` are untouched by the demo build, so `tlstart` continues to work exactly as before.
+
 ## Dashboard
 
 The dashboard shows today's hours against an 8-hour goal, a live table of today's entries, and a bar chart of all-time hours by project.
