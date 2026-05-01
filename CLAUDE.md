@@ -45,6 +45,46 @@ Themes: six CSS custom property sets applied via `data-theme` on `<html>`, defin
 
 Two services — `api` and `frontend`. The `api` container sets `TIMELOG_DB=/data/timelog.db` and mounts `./data:/data`. Both mount `/etc/localtime` for host timezone. No inter-container networking needed (frontend hits the API at `localhost:8888` from the browser).
 
+## Demo build (stateless, browser-only)
+
+Separate, self-contained Docker image for hosting a public demo. Same source tree as the main app, gated on `VITE_DEMO_MODE=true`. Each visitor gets an isolated copy of `data/timelog.db` running as in-browser SQLite (`sql.js` WASM), persisted to that visitor's IndexedDB. Mutations never cross between visitors. There is no API server.
+
+```bash
+docker compose -f docker-compose.demo.yml up --build -d   # serves on :3002
+```
+
+The main `Dockerfile`, `docker-compose.yml`, and `tlstart` flow are untouched.
+
+### How the swap works
+
+- **`frontend/svelte.config.js`** — branches the adapter on `process.env.VITE_DEMO_MODE`. Demo build → `@sveltejs/adapter-static` with `fallback: 'index.html'`. Main build → `@sveltejs/adapter-node` (unchanged).
+- **`frontend/src/routes/+layout.ts`** — `export const ssr = !import.meta.env.VITE_DEMO_MODE;` (SSR off in demo only — adapter-static can't SSR sql.js).
+- **`frontend/src/lib/api.ts`** — `export const api = import.meta.env.VITE_DEMO_MODE ? (await import('./demo/api')).api : realApi;`. The dynamic import + top-level await keeps `sql.js` and the demo shim out of the main bundle (verified: 0 wasm assets in main `build/`).
+- **`frontend/src/lib/demo/db.ts`** — `sql.js` init via `initSqlJs({ locateFile: () => sqlWasmUrl })`, fetches `/seed/timelog.db` on first load, hydrates from IndexedDB key `timelog-demo-db-v1` on subsequent loads, persists after every mutation, exposes `reset()`.
+- **`frontend/src/lib/demo/api.ts`** — same shape as `realApi`. Each method runs the SQL string from `service.py` against sql.js. **Critical:** sql.js's `date('now','localtime')` runs in UTC, not host TZ — the shim binds `new Date().toLocaleDateString('sv-SE')` for today/yesterday queries instead of relying on `'localtime'`.
+- **`frontend/src/lib/demo/csvImport.ts`** — pure-browser CSV parse (no PapaParse), DELETE + bulk INSERT against the in-memory DB. Mirrors `service.import_from_csv`.
+
+### What's disabled in demo mode
+
+- **AI Sync** — `/sync` and `/settings/ai-sync` render a "local-only feature" placeholder. Nav link in `+layout.svelte` gated on `!import.meta.env.VITE_DEMO_MODE`. The `api.claude.*` shim methods throw if called.
+- **CSV import via API** — there's no API; use the in-browser parser from `csvImport.ts` if/when a UI button is wired up on `/settings/storage`.
+- **All CLI commands** — they shell into the API container which doesn't exist in the demo deploy.
+
+### Demo image pipeline
+
+- **`frontend/Dockerfile.demo`** — multi-stage. Stage 1 (node:20-alpine) copies `frontend/` + `data/timelog.db` → `static/seed/timelog.db`, runs `npm run build:demo`. Stage 2 (`nginx:alpine`) serves `build/` via `nginx.demo.conf`.
+- **`frontend/nginx.demo.conf`** — SPA fallback (`try_files $uri $uri/ /index.html`), gzip on JS/CSS/wasm, immutable cache for `/_app/immutable/`. **Do NOT add a `types {}` block** — it replaces the default mime map and breaks `text/html` serving (the index ends up as `application/octet-stream` and the browser downloads it instead of rendering).
+- **`docker-compose.demo.yml`** — single `demo` service, `build.context: .` + `dockerfile: frontend/Dockerfile.demo`, port `3002:80`, no volumes, no env vars. Compose project name shares `timelog-vibed` with the main stack so orphan warnings about `api`/`frontend` are expected.
+- **`.dockerignore`** at repo root — excludes `.git`, `node_modules`, `.svelte-kit`, `build`, `frontend/static/seed`, etc. from the demo build context. The main build (`context: ./frontend`) is unaffected.
+
+### Adding new features
+
+Because the demo and main builds share one source tree, every UI feature added to a route or component automatically appears in the demo. The only file that needs updating per backend change is `frontend/src/lib/demo/api.ts` — add a matching method whenever `timelog/api.py` gains a new endpoint that the frontend calls. The `api` shape in `api.ts` and `demo/api.ts` must stay in lockstep.
+
+### Resetting demo data
+
+Settings → Data → "Reset demo data" (visible only in demo build). Deletes the IndexedDB key and reloads → next page load falls back to fetching `/seed/timelog.db`.
+
 ## Schema
 
 Single table, auto-created by `db.init_db()`:
