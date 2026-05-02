@@ -289,6 +289,9 @@
 
     .links a { font-size: 0.85rem; }
 
-    main { padding: 1rem; }
+    main {
+      padding: 1rem;
+      padding-bottom: 9rem;
+    }
   }
 </style>

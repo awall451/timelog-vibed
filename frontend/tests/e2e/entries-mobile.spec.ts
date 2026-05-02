@@ -39,4 +39,36 @@ test.describe('mobile layout — /entries', () => {
       expect.soft(right, `hours cell right edge (vw=${vw})`).toBeLessThanOrEqual(vw);
     }
   });
+
+  test('footer not occluded by fixed timer or settings widgets', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === 'tablet', 'desktop/tablet layout intentionally allows widget overlap');
+
+    await page.goto('/entries');
+    await page.waitForLoadState('networkidle');
+    await page.waitForFunction(
+      () => document.querySelector('.footer') !== null || document.querySelector('.empty') !== null,
+      undefined,
+      { timeout: 15_000 }
+    );
+
+    const footerCount = await page.locator('.footer').count();
+    if (footerCount === 0) test.skip(true, 'no entries → no footer to test');
+
+    // Scroll footer into view at the bottom of the viewport.
+    await page.locator('.footer').scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(200);
+
+    const footer = await page.locator('.footer').boundingBox();
+    const timer = await page.locator('.sprite-btn').boundingBox();
+    const settings = await page.locator('.settings-btn').boundingBox();
+    expect(footer, 'footer boundingBox').not.toBeNull();
+
+    type Box = { x: number; y: number; width: number; height: number };
+    const intersects = (a: Box, b: Box) =>
+      !(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y);
+
+    if (timer)    expect.soft(intersects(footer!, timer),    'footer overlaps timer widget').toBeFalsy();
+    if (settings) expect.soft(intersects(footer!, settings), 'footer overlaps settings button').toBeFalsy();
+  });
 });
