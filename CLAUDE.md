@@ -248,6 +248,8 @@ And the production path needs Caddy to handle it too.
 
 ## Known bugs to fix
 
+* **Mobile layout — multiple issues, plan in a follow-up session.** First time viewing the app on a phone surfaced several layout/usability problems across the dashboard, entries, charts, and log pages. Specifics aren't catalogued yet. Next session: walk every route on a real mobile viewport (or Chrome DevTools device toolbar), enumerate each issue with file/line, then design a unified mobile-responsive pass before touching code. Don't piecemeal-fix individual screens — solve breakpoints, nav, and form layout holistically.
+
 * Clock live track widget - if on the 'Log Time' page and click 'Stop & log,' nothing happens. Normal behavior is to redirect to the log time page, but this breaks if you are alread on the log time page.
 
 * **Theme flash / white border on direct-URL load — partially fixed, edge case remains.** Direct browser navigation to a route (e.g. `http://timelog.localhost/sync`) used to render with the default theme and a visible ~8px white frame around the body until the user clicked back home + hard-refreshed. Two root causes addressed in commit `e25c1ad` on `main`:
