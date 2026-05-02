@@ -268,4 +268,27 @@
     margin: 0 auto;
     padding: 2rem;
   }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+
+    nav {
+      height: auto;
+      min-height: 56px;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+    }
+
+    .links {
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      order: 3;
+      flex-basis: 100%;
+    }
+
+    .links a { font-size: 0.85rem; }
+
+    main { padding: 1rem; }
+  }
 </style>

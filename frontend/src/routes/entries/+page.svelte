@@ -344,7 +344,7 @@
             </th>
             <th>Project</th>
             <th>Category</th>
-            <th>Description</th>
+            <th class="description">Description</th>
             <th>Hours</th>
             <th class="actions-col"></th>
           </tr>
@@ -358,7 +358,7 @@
               <td class="mono date-cell" class:date-active={selectedDate === entry.date} onclick={() => pickDate(entry.date)}>{entry.date}</td>
               <td class="bold project-cell" onclick={() => project = project === entry.project ? '' : entry.project}>{entry.project}</td>
               <td><span class="badge category-cell" onclick={() => category = category === entry.category ? '' : entry.category}>{entry.category}</span></td>
-              <td class="muted">{entry.description || '—'}</td>
+              <td class="muted description">{entry.description || '—'}</td>
               <td class="hours">{entry.hours.toFixed(2)}</td>
               <td class="actions-col">
                 <div class="row-menu">
@@ -619,7 +619,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    overflow: visible;
+    overflow-x: auto;
   }
 
   table {
@@ -943,5 +943,32 @@
     border-radius: 7px;
     font-size: 0.85rem;
     margin-bottom: 0.25rem;
+  }
+
+  @media (max-width: 600px) {
+    th.description,
+    td.description { display: none; }
+
+    thead th,
+    tbody td {
+      padding: 0.55rem 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    tbody td.mono { font-size: 0.78rem; }
+
+    .actions-col { padding: 0 0.25rem 0 0 !important; }
+  }
+
+  @media (max-width: 400px) {
+    thead th,
+    tbody td {
+      padding: 0.5rem 0.3rem;
+      font-size: 0.76rem;
+    }
+
+    tbody td.mono { font-size: 0.74rem; }
+
+    .actions-col { padding: 0 0.15rem 0 0 !important; }
   }
 </style>
