@@ -1,0 +1,8 @@
+services:
+  demo:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.demo
+    restart: unless-stopped
+    ports:
+      - "3002:80"

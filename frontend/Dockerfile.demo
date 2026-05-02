@@ -1,0 +1,14 @@
+FROM node:20-alpine AS builder
+ENV NODE_ENV=development
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci --include=dev --ignore-scripts && test -x node_modules/.bin/vite
+COPY frontend/ ./
+RUN mkdir -p static/seed
+COPY data/timelog.db static/seed/timelog.db
+RUN npm run build:demo
+
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY frontend/nginx.demo.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80

@@ -4,15 +4,52 @@
   let confirming = $state(false);
   let resetDone  = $state(false);
 
+  let confirmingDemo = $state(false);
+  let demoResetting  = $state(false);
+
   function doReset() {
     resetSettings();
     confirming = false;
     resetDone = true;
     setTimeout(() => resetDone = false, 2500);
   }
+
+  async function doDemoReset() {
+    demoResetting = true;
+    const { reset } = await import('$lib/demo/db');
+    await reset();
+    location.reload();
+  }
 </script>
 
 <h1>Data</h1>
+
+{#if import.meta.env.VITE_DEMO_MODE}
+<div class="setting-row">
+  <div class="setting-info">
+    <span class="row-label">Reset demo data</span>
+    <p class="hint">
+      This is a public demo. Your changes (added entries, edits, deletes) live only
+      in this browser. Click below to wipe them and restore the seed dataset.
+    </p>
+  </div>
+  <div class="setting-control">
+    {#if !confirmingDemo}
+      <button class="btn-danger" onclick={() => confirmingDemo = true} type="button">
+        Reset demo data
+      </button>
+    {:else}
+      <div class="confirm">
+        <span>Wipe all your demo entries?</span>
+        <button class="btn-danger" onclick={doDemoReset} disabled={demoResetting} type="button">
+          {demoResetting ? 'Resetting…' : 'Yes, reset'}
+        </button>
+        <button class="btn-cancel" onclick={() => confirmingDemo = false} type="button">Cancel</button>
+      </div>
+    {/if}
+  </div>
+</div>
+{/if}
 
 <div class="setting-row">
   <div class="setting-info">

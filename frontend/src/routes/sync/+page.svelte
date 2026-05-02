@@ -94,7 +94,16 @@
     <p class="subtitle">Generate timelog entries from your Claude Code sessions</p>
   </div>
 
-  {#if !settings.aiSyncEnabled}
+  {#if import.meta.env.VITE_DEMO_MODE}
+    <div class="disabled-state">
+      <p class="disabled-title">AI Sync is a local-only feature.</p>
+      <p class="disabled-hint">
+        This demo runs entirely in your browser. AI Sync needs direct access to
+        <code>~/.claude</code> on your machine, so it's only available when you
+        run timelog locally.
+      </p>
+    </div>
+  {:else if !settings.aiSyncEnabled}
     <div class="disabled-state">
       <p class="disabled-title">AI Sync is disabled.</p>
       <p class="disabled-hint">

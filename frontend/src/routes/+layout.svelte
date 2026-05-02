@@ -25,7 +25,7 @@
         <a href="/">Dashboard</a>
         <a href="/entries">Entries</a>
         <a href="/charts">Charts</a>
-        {#if settings.aiSyncEnabled}
+        {#if !import.meta.env.VITE_DEMO_MODE && settings.aiSyncEnabled}
           <a href="/sync">AI Sync</a>
         {/if}
         <a href="/log">Log Time</a>
