@@ -40,7 +40,7 @@
     submitting = true;
     try {
       await api.entries.add({ project, category, description, hours: h, date: date || undefined });
-      goto('/');
+      goto('/dashboard');
     } catch (err) {
       error = 'Failed to save entry — is tlserve running?';
     } finally {
@@ -98,7 +98,7 @@
     </div>
 
     <div class="actions">
-      <a href="/" class="btn-secondary">Cancel</a>
+      <a href="/dashboard" class="btn-secondary">Cancel</a>
       <button type="submit" class="btn-primary" disabled={submitting}>
         {submitting ? 'Saving…' : 'Save Entry'}
       </button>
