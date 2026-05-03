@@ -6,11 +6,11 @@ import { defineConfig, devices } from '@playwright/test';
  * - Chromium / Firefox at iPhone-13 + Pixel-7 viewports run locally on
  *   any host (Linux/macOS/Windows) — covers Blink + Gecko engines plus
  *   touch/mobile viewport regressions on the smoke-renders spec.
- * - WebKit (Safari engine) is omitted from the local config because
- *   Playwright's WebKit Linux binary requires libicu.so.74, which Arch
- *   and other rolling distros do not ship. To run the smoke spec on
- *   WebKit, use the Playwright Docker image — see CLAUDE.md "Cross-
- *   browser testing" section.
+ * - WebKit (Safari engine) is opt-in via `CI=true` because Playwright's
+ *   WebKit Linux binary requires libicu.so.74, which Arch and other
+ *   rolling distros do not ship. The Ubuntu runner used by GitHub
+ *   Actions has libicu74 out of the box, so CI gets real WebKit
+ *   coverage of the smoke spec on every PR.
  *
  * Existing mobile-overflow tests stay on the original four mobile/
  * tablet projects (razr, iphone-se, pixel-7, tablet) using Chromium —
@@ -18,6 +18,29 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * The demo-recording spec runs only under desktop-record.
  */
+
+const isCI = !!process.env.CI;
+
+const webkitProjects = isCI
+  ? [
+      {
+        name: 'webkit-iphone-13',
+        testMatch: /smoke-renders\.spec\.ts/,
+        use: { ...devices['iPhone 13'] },
+      },
+      {
+        name: 'webkit-iphone-se',
+        testMatch: /smoke-renders\.spec\.ts/,
+        use: {
+          browserName: 'webkit' as const,
+          viewport: { width: 375, height: 667 },
+          userAgent:
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
+        },
+      },
+    ]
+  : [];
+
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
@@ -102,5 +125,8 @@ export default defineConfig({
           'Mozilla/5.0 (Android 14; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0',
       },
     },
+
+    // WebKit projects added only in CI (Ubuntu runner has libicu74)
+    ...webkitProjects,
   ],
 });

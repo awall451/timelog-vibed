@@ -217,21 +217,26 @@ Playwright is configured at `frontend/playwright.config.ts` with multiple projec
 
 Default `npm run test:e2e` runs the mobile sweep + smoke renders across all the above projects. Recording is opt-in via `npm run record:demo`.
 
-### WebKit (Safari engine) — Docker-only on rolling distros
+### WebKit (Safari engine) — CI-only on rolling distros
 
-Playwright's WebKit Linux binary links against `libicu.so.74`, which Arch / openSUSE Tumbleweed / other rolling distros do not ship (they have ICU 76+). Two paths:
+Playwright's WebKit Linux binary links against `libicu.so.74`, which Arch / openSUSE Tumbleweed / other rolling distros do not ship (they have ICU 76+). The repo handles this in two layers:
 
-1. **Run from the official Playwright image (recommended):**
+1. **GitHub Actions CI** (`.github/workflows/ci.yml`) — Ubuntu runner has libicu74 by default, so WebKit projects are added to `playwright.config.ts` automatically when `process.env.CI` is set. Every PR + push to main runs the smoke spec on `webkit-iphone-13` + `webkit-iphone-se` alongside the Chromium/Firefox projects. This gives us real Safari-engine coverage we can't run on the local Arch host.
+2. **Local Docker** (when needed) — run from the official Playwright image:
 
    ```bash
    docker run --rm --network host -v $PWD:/work -w /work/frontend \
      mcr.microsoft.com/playwright:v1.59.1-noble \
-     npx playwright test --project=chromium-iphone-13 smoke-renders
+     bash -c "CI=true npx playwright test --project=webkit-iphone-13 smoke-renders"
    ```
 
-   Add a `webkit-iphone-13` project to `playwright.config.ts` when running from Docker — the host config omits it because the host can't launch WebKit. The Playwright image bundles WebKit + all required system libs.
+3. **Real-device coverage** for old iOS Safari (12, 13, 14) still requires BrowserStack / LambdaTest / Sauce Labs — Linux can't run iOS Simulator (Xcode is macOS-only) and Playwright's WebKit is always recent. This is the only way to catch parse-time regressions specific to a particular iOS version.
 
-2. **Real-device coverage** for old iOS Safari (12, 13, 14) requires BrowserStack / LambdaTest / Sauce Labs — Linux can't run iOS Simulator (Xcode is macOS-only). This is the only way to catch parse-time regressions specific to a particular iOS version.
+## Testing practice
+
+For new behavior, prefer test-first (red → green) where the contract is clear: pure functions, derived values, api shapes, route smoke. Skip TDD for refactors, exploratory UI work, and one-line fixes. The `smoke-renders.spec.ts` exists specifically to catch the kind of silent regression that overflow/layout tests can't surface (e.g. the iOS Safari < 15 top-level await blank-page bug).
+
+When CI fails on a PR, that's the signal to add a test that captures the bug before fixing the bug. Ratchet up coverage; don't drift.
 
 ## Local development (outside Docker)
 
