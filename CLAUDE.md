@@ -207,6 +207,32 @@ invoices(id, org_id, project_id, period_start, period_end, pdf_path, generated_a
 ### Monetization (future consideration)
 Hosted SaaS: run `timelog.io`, charge $5-8/mo for convenience. Code stays MIT. No enterprise licensing complexity. Decide after the app has real users.
 
+## Cross-browser testing
+
+Playwright is configured at `frontend/playwright.config.ts` with multiple project flavors:
+
+- **Mobile-overflow sweep** (Chromium-only): `razr-portrait`, `iphone-se`, `pixel-7`, `tablet` — runs `mobile-sweep.spec.ts` + `entries-mobile.spec.ts` to catch horizontal overflow regressions.
+- **Smoke renders** (Chromium + Firefox at iPhone 13 + Pixel 7): `chromium-iphone-13`, `firefox-iphone-13`, `chromium-pixel-7`, `firefox-pixel-7` — runs `smoke-renders.spec.ts`, asserts every public route renders its h1 within 5s with no console errors. Catches blank-on-load failure modes (the bug class that motivated removing top-level await for iOS Safari < 15).
+- **Demo recording** (`desktop-record`): runs `demo-recording.spec.ts` only, produces the screencast in `frontend/static/demo.webm` via `npm run record:demo`.
+
+Default `npm run test:e2e` runs the mobile sweep + smoke renders across all the above projects. Recording is opt-in via `npm run record:demo`.
+
+### WebKit (Safari engine) — Docker-only on rolling distros
+
+Playwright's WebKit Linux binary links against `libicu.so.74`, which Arch / openSUSE Tumbleweed / other rolling distros do not ship (they have ICU 76+). Two paths:
+
+1. **Run from the official Playwright image (recommended):**
+
+   ```bash
+   docker run --rm --network host -v $PWD:/work -w /work/frontend \
+     mcr.microsoft.com/playwright:v1.59.1-noble \
+     npx playwright test --project=chromium-iphone-13 smoke-renders
+   ```
+
+   Add a `webkit-iphone-13` project to `playwright.config.ts` when running from Docker — the host config omits it because the host can't launch WebKit. The Playwright image bundles WebKit + all required system libs.
+
+2. **Real-device coverage** for old iOS Safari (12, 13, 14) requires BrowserStack / LambdaTest / Sauce Labs — Linux can't run iOS Simulator (Xcode is macOS-only). This is the only way to catch parse-time regressions specific to a particular iOS version.
+
 ## Local development (outside Docker)
 
 ```bash
