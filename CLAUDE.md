@@ -249,40 +249,14 @@ npm install
 npm run dev                            # frontend at localhost:5173
 ```
 
-## Known bugs to fix (CORS / easy-local-proxy)
+## Known bugs and follow-ups
 
-When accessed via `timelog-vibed-frontend-1.localhost` (easy-local-proxy), the frontend breaks because `VITE_API_BASE` defaults to `http://localhost:8888` and `api.py` only allows `localhost:3000/5173/4173` origins — CORS blocks it.
+Tracked in GitHub Issues — search `is:open` on the repo. Open at the time of this writing:
 
-**Current workaround** applied in `api.py`: `allow_origin_regex=r"http://.*\.localhost(:\d+)?"` — fine for local dev but not a real fix.
+- [#28 — Mobile layout: unified responsive pass needed](https://github.com/awall451/timelog-vibed/issues/28)
+- [#29 — Timer "Stop & Log" no-op when already on /log](https://github.com/awall451/timelog-vibed/issues/29)
+- [#30 — Theme flash edge case on rapid hard-refresh in Firefox](https://github.com/awall451/timelog-vibed/issues/30)
+- [#31 — CORS workaround: replace `allow_origin_regex` with same-origin proxy](https://github.com/awall451/timelog-vibed/issues/31)
+- [#32 — Edit modal + Log form: native control styling inconsistencies](https://github.com/awall451/timelog-vibed/issues/32)
 
-**Proper fix options (pick one):**
-1. Change `VITE_API_BASE` default from `http://localhost:8888` to `/api` and proxy `/api/*` → API container via Caddy or the frontend's vite config. Same-origin → no CORS needed.
-2. Pass `VITE_API_BASE=http://timelog-vibed-api-1.localhost` as a build arg and use `allow_origin_regex` as a permanent addition to the API.
-
-Option 1 is cleaner. Vite proxy config in `frontend/vite.config.ts` would add:
-```ts
-server: { proxy: { '/api': 'http://localhost:8888' } }
-```
-And the production path needs Caddy to handle it too.
-
-## Known bugs to fix
-
-* **Mobile layout — multiple issues, plan in a follow-up session.** First time viewing the app on a phone surfaced several layout/usability problems across the dashboard, entries, charts, and log pages. Specifics aren't catalogued yet. Next session: walk every route on a real mobile viewport (or Chrome DevTools device toolbar), enumerate each issue with file/line, then design a unified mobile-responsive pass before touching code. Don't piecemeal-fix individual screens — solve breakpoints, nav, and form layout holistically.
-
-* Clock live track widget - if on the 'Log Time' page and click 'Stop & log,' nothing happens. Normal behavior is to redirect to the log time page, but this breaks if you are alread on the log time page.
-
-* **Theme flash / white border on direct-URL load — partially fixed, edge case remains.** Direct browser navigation to a route (e.g. `http://timelog.localhost/sync`) used to render with the default theme and a visible ~8px white frame around the body until the user clicked back home + hard-refreshed. Two root causes addressed in commit `e25c1ad` on `main`:
-
-  1. **Theme FOUC** — `data-theme` was only set inside a client-side `$effect` in `frontend/src/routes/+layout.svelte`. SSR HTML had no `data-theme` attr, so first paint used `:global(:root)` defaults until hydration replaced them. **Fix:** inline pre-hydration `<script>` in `frontend/src/app.html` reads `localStorage.timelog-settings` (with legacy `theme` key fallback), validates against the `THEMES` allow-list, and sets `data-theme` on `<html>` before first paint.
-  2. **White border** — Svelte scopes the `* { margin: 0 }` reset to component descendants, so it never reached `<html>` or `<body>`. `<body>` got `var(--bg)` via `:global(body)`, but `<html>` had no background and kept the browser's default 8px margin → a visible white frame. **Fix:** added `:global(html, body) { margin: 0; background: var(--bg); }` in `+layout.svelte`.
-
-  **Residual edge case:** rapid repeated hard-refresh (Ctrl+Shift+R held / spammed) on a non-incognito Firefox profile can still flash the broken state. Incognito is fine. Cause is likely a cache + hydration race: the inline theme script reads stale `localStorage` *before* the bundled JS that wrote a newer setting has run, or the `<link rel="stylesheet">` for the layout CSS hasn't applied when paint starts. Things to try next session:
-    - Move the `:root` default theme variables out of the layout `<style>` block and into a static stylesheet linked from `app.html` (or inline a critical-CSS block), so the first paint always has the theme palette without waiting on bundle resolution.
-    - Inline the `:global(html, body)` reset directly in `app.html` so it cannot be delayed by the JS bundle.
-    - Add `color-scheme: dark` (and `light` for catppuccin) on `<html>` so the browser's pre-CSS background is dark, not white — this would make any remaining flash invisible.
-    - Confirm the inline pre-hydration script runs *before* any `<link rel="stylesheet">` parse-blocks the head; keep the `<script>` block above `%sveltekit.head%` (already the case as of `e25c1ad`).
-    - Investigate whether SvelteKit's `data-sveltekit-preload-data="hover"` is preloading the wrong route's CSS during rapid refresh and racing the theme script.
-
-## Visual improvements (future)
-
-* Edit entry modal + Log Time form — native browser controls (number spinner on Hours, calendar icon on Date) look inconsistent with custom styling. Attempted fix with `appearance: textfield` + `::-webkit-calendar-picker-indicator` caused issues. Proper fix: replace `type="date"` with a text input + hidden date picker (same pattern as the filter bar's custom calendar button), and strip number spinner via `::-webkit-inner-spin-button { -webkit-appearance: none }`. Affects both `frontend/src/routes/entries/+page.svelte` (edit modal) and `frontend/src/routes/log/+page.svelte` (log form).
+When you find a new bug, open an issue rather than appending to this file. Link the fixing PR via `Closes #N` in the description.
