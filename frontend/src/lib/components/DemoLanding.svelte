@@ -94,39 +94,6 @@
     </div>
   </section>
 
-  <section class="sandbox">
-    <div class="sandbox-card">
-      <div class="sandbox-head">
-        <div class="sandbox-icon">🧪</div>
-        <h2>Go nuts — you can't break a thing</h2>
-      </div>
-      <p class="sandbox-lede">
-        Everything you see here is <strong>fake mock data</strong> running in
-        your own browser. Add entries, delete them, change themes, mash buttons
-        — it only touches your local copy. Nothing gets sent anywhere, no other
-        visitor sees your changes, and there's no "real" account to mess up.
-      </p>
-      <div class="sandbox-points">
-        <div class="sb-point">
-          <strong>Mock data only</strong>
-          <span>None of these projects, hours, or entries are real.</span>
-        </div>
-        <div class="sb-point">
-          <strong>Just for you</strong>
-          <span>Every visitor gets their own private copy in their browser. Your changes never reach anyone else.</span>
-        </div>
-        <div class="sb-point">
-          <strong>Wipe it whenever</strong>
-          <span>Settings → Data → "Reset demo data" puts everything back to a clean slate in one click.</span>
-        </div>
-      </div>
-      <p class="sandbox-foot">
-        Seriously — click around, experiment, try every button. Worst thing
-        that can happen is you reload the page.
-      </p>
-    </div>
-  </section>
-
   <section class="roadmap">
     <div class="roadmap-header">
       <h2>What's next</h2>
@@ -268,88 +235,6 @@
   }
 
   .cta-secondary:hover { color: var(--text); border-color: var(--accent); }
-
-  /* Sandbox reassurance */
-  .sandbox {
-    display: flex;
-    justify-content: center;
-  }
-
-  .sandbox-card {
-    width: 100%;
-    max-width: 920px;
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 1.5rem 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .sandbox-head {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .sandbox-icon {
-    font-size: 1.8rem;
-    line-height: 1;
-  }
-
-  .sandbox-card h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    text-align: left;
-    margin: 0;
-  }
-
-  .sandbox-lede {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.55;
-  }
-
-  .sandbox-card strong { color: var(--text); }
-
-  .sandbox-points {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0.75rem;
-    margin: 0.25rem 0;
-  }
-
-  .sb-point {
-    background: var(--surface2);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  .sb-point strong {
-    color: var(--accent-light);
-    font-size: 0.88rem;
-    font-weight: 600;
-  }
-
-  .sb-point span {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    line-height: 1.5;
-  }
-
-  .sandbox-foot {
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    font-style: italic;
-    text-align: center;
-  }
 
   /* Video */
   .video-section {
@@ -667,7 +552,5 @@
     .hero { padding-top: 1rem; }
     .cta-row { width: 100%; flex-direction: column; }
     .cta-primary, .cta-secondary { text-align: center; }
-    .sandbox-card { grid-template-columns: 1fr; gap: 0.85rem; padding: 1.25rem; }
-    .sandbox-icon { font-size: 2rem; }
   }
 </style>
