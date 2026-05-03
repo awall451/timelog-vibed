@@ -294,4 +294,22 @@
       padding-bottom: 9rem;
     }
   }
+
+  /* Hide app chrome when printing — pages opt in to printable content
+     by rendering a .print-sheet element. */
+  @media print {
+    :global(html, body) {
+      background: #fff !important;
+      color: #000 !important;
+    }
+    header { display: none !important; }
+    main {
+      padding: 0 !important;
+      max-width: none !important;
+    }
+    :global(.widget),
+    :global(.settings-btn) {
+      display: none !important;
+    }
+  }
 </style>

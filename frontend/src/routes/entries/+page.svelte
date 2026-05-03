@@ -78,6 +78,42 @@
 
   let totalHours = $derived(filtered.reduce((s, e) => s + e.hours, 0));
 
+  type PrintGroup = { project: string; rows: Entry[]; total: number };
+
+  let printGroups = $derived.by(() => {
+    const map = new Map<string, PrintGroup>();
+    for (const e of filtered) {
+      let g = map.get(e.project);
+      if (!g) {
+        g = { project: e.project, rows: [], total: 0 };
+        map.set(e.project, g);
+      }
+      g.rows.push(e);
+      g.total += e.hours;
+    }
+    for (const g of map.values()) {
+      g.rows.sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+    }
+    return Array.from(map.values()).sort((a, b) => a.project.localeCompare(b.project));
+  });
+
+  function formatMonth(m: string): string {
+    if (!m || !/^\d{4}-\d{2}$/.test(m)) return m;
+    const [y, mo] = m.split('-').map(Number);
+    return new Date(y, mo - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  let filterSummary = $derived.by(() => {
+    const parts: string[] = [];
+    if (selectedDate)                                 parts.push(selectedDate);
+    else if (dateFilter === 'today')                  parts.push(`Today (${today})`);
+    else if (dateFilter === 'yesterday')              parts.push(`Yesterday (${yesterday})`);
+    else if (dateFilter === 'month' && month)         parts.push(formatMonth(month));
+    if (project)  parts.push(`Project: ${project}`);
+    if (category) parts.push(`Category: ${category}`);
+    return parts.length ? parts.join(' · ') : 'All entries';
+  });
+
   let heatmapHours = $derived.by(() => {
     const m = new Map<string, number>();
     for (const e of allEntries) {
@@ -225,7 +261,16 @@
 <div class="page">
   <div class="page-header">
     <h1>Entries</h1>
-    <a href="/log" class="btn-primary">+ Log Time</a>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick={() => window.print()}
+        disabled={loading || filtered.length === 0}
+        title={filtered.length === 0 ? 'No entries to export' : 'Print or save as PDF'}
+      >Export PDF</button>
+      <a href="/log" class="btn-primary">+ Log Time</a>
+    </div>
   </div>
 
   <div class="filters">
@@ -404,6 +449,45 @@
   <div class="hm-tooltip" style="left:{tooltip.x}px;top:{tooltip.y}px">{tooltip.text}</div>
 {/if}
 
+<aside class="print-sheet" aria-hidden="true">
+  <header class="ps-head">
+    <h1>Timelog Timesheet</h1>
+    <p class="ps-meta">{filterSummary} · {filtered.length} {filtered.length === 1 ? 'entry' : 'entries'} · {totalHours.toFixed(2)}h total</p>
+  </header>
+  {#each printGroups as g (g.project)}
+    <section class="ps-project">
+      <h2>{g.project}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th class="num">Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each g.rows as e (e.id)}
+            <tr>
+              <td>{e.date}</td>
+              <td>{e.category}</td>
+              <td>{e.description || '—'}</td>
+              <td class="num">{e.hours.toFixed(2)}</td>
+            </tr>
+          {/each}
+        </tbody>
+        <tfoot>
+          <tr><td colspan="3">Project total</td><td class="num">{g.total.toFixed(2)}h</td></tr>
+        </tfoot>
+      </table>
+    </section>
+  {/each}
+  <footer class="ps-foot">
+    <span>Grand total: <strong>{totalHours.toFixed(2)}h</strong></span>
+    <span>Generated {new Date().toLocaleString()} · Timelog</span>
+  </footer>
+</aside>
+
 <!-- Edit modal -->
 {#if editEntry}
   <div class="modal-backdrop" onclick={closeEdit} role="presentation">
@@ -477,6 +561,33 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .header-actions .btn-secondary {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    background: transparent;
+    color: var(--text-muted-mid);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .header-actions .btn-secondary:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .header-actions .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   h1 {
@@ -970,5 +1081,103 @@
     tbody td.mono { font-size: 0.74rem; }
 
     .actions-col { padding: 0 0.15rem 0 0 !important; }
+  }
+
+  /* PDF print: hide on-screen UI, show print sheet */
+  .print-sheet { display: none; }
+
+  @media print {
+    .page > .page-header,
+    .page > .filters,
+    .page > .heatmap-section,
+    .page > .table-wrap,
+    .page > .footer,
+    .page > .empty,
+    .page > .muted,
+    .page > .error {
+      display: none !important;
+    }
+    .hm-tooltip { display: none !important; }
+
+    .print-sheet {
+      display: block !important;
+      color: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    .ps-head h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.25rem;
+      color: #000;
+      letter-spacing: -0.02em;
+    }
+
+    .ps-meta {
+      font-size: 0.85rem;
+      color: #444;
+      margin: 0 0 1.5rem;
+    }
+
+    .ps-project {
+      page-break-inside: avoid;
+      margin-bottom: 1.5rem;
+    }
+
+    .ps-project + .ps-project {
+      page-break-before: always;
+    }
+
+    .ps-project h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: #000;
+      border-bottom: 1px solid #000;
+      padding-bottom: 0.25rem;
+    }
+
+    .ps-project table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .ps-project th,
+    .ps-project td {
+      text-align: left;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+      color: #000;
+    }
+
+    .ps-project th {
+      font-weight: 600;
+      border-bottom: 1px solid #000;
+    }
+
+    .ps-project .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ps-project tfoot td {
+      font-weight: 700;
+      border-top: 1px solid #000;
+      border-bottom: none;
+      background: #f5f5f5;
+    }
+
+    .ps-foot {
+      margin-top: 1.25rem;
+      padding-top: 0.5rem;
+      border-top: 2px solid #000;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #000;
+    }
+
+    .ps-foot strong { font-weight: 700; }
   }
 </style>
