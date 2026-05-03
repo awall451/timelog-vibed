@@ -7,6 +7,24 @@
     { icon: '📦', title: 'CSV import / export', body: 'Bring your old data in, take it back out. Plain CSV, no lock-in.' },
     { icon: '💾', title: 'Local-first', body: 'SQLite on disk. Your time data never leaves your machine.' },
   ];
+
+  const corePlanned = [
+    { title: 'Entry templates', body: 'One-click pre-fill for common project + category combos.' },
+    { title: 'Weekly goals', body: 'Per-project hour targets with progress bars on the dashboard.' },
+    { title: 'PDF timesheet export', body: 'Grouped by project, date-ranged, browser-rendered.' },
+    { title: 'Tags', body: 'Free-form labels for cross-cutting work — filter on anything.' },
+    { title: 'PWA + offline log', body: 'Installable on phone. Log time even on the train.' },
+    { title: 'AI session sync', body: 'Auto-suggest entries from Claude Code session history.' },
+  ];
+
+  const teamFeatures = [
+    { icon: '🔐', title: 'OIDC single sign-on', body: 'Dex, Google Workspace, Okta, Auth0 — same code path, one env var.' },
+    { icon: '👥', title: 'Roles & approvals', body: 'Admin / manager / member. Submit → approve → lock workflow.' },
+    { icon: '💸', title: 'Billing engine', body: 'Hours × rate → invoice PDFs. Per-user or per-project rate cards.' },
+    { icon: '📈', title: 'Admin dashboard', body: 'Cross-user utilization, project budgets, hour-cap alerts.' },
+    { icon: '💬', title: 'Slack / Teams bot', body: '`/log 2h ProjectX dev` from chat. Entry created.' },
+    { icon: '🌐', title: 'Client portal', body: 'Read-only billed-hours view for clients you invoice.' },
+  ];
 </script>
 
 <div class="landing">
@@ -74,6 +92,63 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="roadmap">
+    <div class="roadmap-header">
+      <h2>What's next</h2>
+      <div class="badge-strip">
+        <span class="rb">MIT forever</span>
+        <span class="rb">One repo</span>
+        <span class="rb">Free for personal &amp; team</span>
+      </div>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="track">
+        <div class="track-head">
+          <span class="track-tag core">Personal app</span>
+          <h3>Coming soon</h3>
+        </div>
+        <ul class="checklist">
+          {#each corePlanned as p}
+            <li>
+              <span class="check">▸</span>
+              <div>
+                <strong>{p.title}</strong>
+                <p>{p.body}</p>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      </div>
+
+      <div class="track">
+        <div class="track-head">
+          <span class="track-tag team">Team mode</span>
+          <h3>The team future</h3>
+        </div>
+        <p class="track-intro">
+          Same codebase. Opt in with one env var (<code>TIMELOG_MODE=multi</code>).
+          Personal users never see the team code; teams get a real multi-user app.
+        </p>
+        <div class="team-grid">
+          {#each teamFeatures as f}
+            <div class="team-card">
+              <div class="team-icon">{f.icon}</div>
+              <h4>{f.title}</h4>
+              <p>{f.body}</p>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+
+    <p class="roadmap-foot">
+      No closed-source split. No "open core" trick. The team edition ships in the
+      same MIT repo as the personal app — every line of it. If hosted SaaS ever
+      happens, the code stays free.
+    </p>
   </section>
 
   <section class="footer-cta">
@@ -277,6 +352,182 @@
     line-height: 1.5;
   }
 
+  /* Roadmap */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .roadmap-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: center;
+  }
+
+  .badge-strip {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rb {
+    background: var(--surface2);
+    color: var(--accent-light);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 1.5rem;
+  }
+
+  .track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .track-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .track-head h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .track-tag {
+    align-self: flex-start;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .track-tag.core {
+    background: var(--surface2);
+    color: var(--accent-light);
+    border: 1px solid var(--accent);
+  }
+
+  .track-tag.team {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .checklist li {
+    display: grid;
+    grid-template-columns: 1.2rem 1fr;
+    gap: 0.6rem;
+    align-items: start;
+  }
+
+  .check {
+    color: var(--accent);
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .checklist strong {
+    color: var(--text);
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+
+  .checklist p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .track-intro {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .track-intro code {
+    background: var(--surface2);
+    color: var(--accent-light);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .team-card {
+    background: var(--surface2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    transition: border-color 0.15s;
+  }
+
+  .team-card:hover { border-color: var(--accent); }
+
+  .team-icon { font-size: 1.25rem; }
+
+  .team-card h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .team-card p {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .roadmap-foot {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    max-width: 42rem;
+    margin: 0 auto;
+    font-style: italic;
+  }
+
   /* Footer CTA */
   .footer-cta {
     display: flex;
@@ -290,6 +541,10 @@
   .reset-note {
     color: var(--text-muted);
     font-size: 0.85rem;
+  }
+
+  @media (max-width: 800px) {
+    .roadmap-grid { grid-template-columns: minmax(0, 1fr); }
   }
 
   @media (max-width: 600px) {
