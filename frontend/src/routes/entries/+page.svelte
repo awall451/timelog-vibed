@@ -114,6 +114,44 @@
     return parts.length ? parts.join(' · ') : 'All entries';
   });
 
+  function csvEscape(v: string | number): string {
+    const s = String(v ?? '');
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+
+  function csvFilenameSuffix(): string {
+    const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const parts: string[] = [];
+    if (selectedDate)                         parts.push(selectedDate);
+    else if (dateFilter === 'today')          parts.push('today');
+    else if (dateFilter === 'yesterday')      parts.push('yesterday');
+    else if (dateFilter === 'month' && month) parts.push(month);
+    if (project)  parts.push(slug(project));
+    if (category) parts.push(slug(category));
+    return parts.length ? '-' + parts.join('-') : '';
+  }
+
+  function exportCSV() {
+    if (filtered.length === 0) return;
+    const cols = ['id', 'project', 'category', 'description', 'hours', 'date'] as const;
+    const lines = [cols.join(',')];
+    // sort chronologically to match CLI tlexport (ORDER BY date, id)
+    const rows = [...filtered].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+    for (const e of rows) {
+      lines.push(cols.map(c => csvEscape((e as any)[c] ?? '')).join(','));
+    }
+    const csv = lines.join('\n') + '\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `timelog-${today}${csvFilenameSuffix()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   let heatmapHours = $derived.by(() => {
     const m = new Map<string, number>();
     for (const e of allEntries) {
@@ -262,6 +300,13 @@
   <div class="page-header">
     <h1>Entries</h1>
     <div class="header-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick={exportCSV}
+        disabled={loading || filtered.length === 0}
+        title={filtered.length === 0 ? 'No entries to export' : 'Download as CSV (opens in Excel/Sheets)'}
+      >Export CSV</button>
       <button
         type="button"
         class="btn-secondary"
