@@ -99,6 +99,55 @@ const realApi = {
   },
 };
 
-export const api: typeof realApi = import.meta.env.VITE_DEMO_MODE
-  ? ((await import('./demo/api')).api as typeof realApi)
-  : realApi;
+// Avoid top-level await so older Safari (iOS < 15) parses this module.
+// In demo mode we resolve the demo api lazily; in main mode we wrap a
+// resolved promise around realApi so the call shape stays uniform. The
+// dynamic import is still gated on VITE_DEMO_MODE so the demo bundle
+// (sql.js + WASM) stays out of the main app chunk.
+const apiPromise: Promise<typeof realApi> = import.meta.env.VITE_DEMO_MODE
+  ? import('./demo/api').then((m) => m.api as typeof realApi)
+  : Promise.resolve(realApi);
+
+function lazy<T extends (...args: any[]) => any>(path: readonly string[]): T {
+  return (async (...args: any[]) => {
+    const root: any = await apiPromise;
+    let target: any = root;
+    let owner: any = root;
+    for (const p of path) {
+      owner = target;
+      target = target[p];
+    }
+    return target.apply(owner, args);
+  }) as T;
+}
+
+export const api: typeof realApi = {
+  entries: {
+    all:        lazy(['entries', 'all']),
+    today:      lazy(['entries', 'today']),
+    yesterday:  lazy(['entries', 'yesterday']),
+    last:       lazy(['entries', 'last']),
+    byMonth:    lazy(['entries', 'byMonth']),
+    byProject:  lazy(['entries', 'byProject']),
+    byCategory: lazy(['entries', 'byCategory']),
+    add:        lazy(['entries', 'add']),
+    update:     lazy(['entries', 'update']),
+    delete:     lazy(['entries', 'delete']),
+  },
+  sum: {
+    all:         lazy(['sum', 'all']),
+    today:       lazy(['sum', 'today']),
+    yesterday:   lazy(['sum', 'yesterday']),
+    byMonth:     lazy(['sum', 'byMonth']),
+    byProject:   lazy(['sum', 'byProject']),
+    byCategory:  lazy(['sum', 'byCategory']),
+    perProject:  lazy(['sum', 'perProject']),
+    perCategory: lazy(['sum', 'perCategory']),
+  },
+  projects:   lazy(['projects']),
+  categories: lazy(['categories']),
+  claude: {
+    preview: lazy(['claude', 'preview']),
+    sync:    lazy(['claude', 'sync']),
+  },
+};
