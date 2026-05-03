@@ -147,6 +147,7 @@
   }
 
   input {
+    box-sizing: border-box;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -168,7 +169,7 @@
 
   .row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1rem;
   }
 
