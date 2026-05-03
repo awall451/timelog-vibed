@@ -47,7 +47,7 @@ Two services — `api` and `frontend`. The `api` container sets `TIMELOG_DB=/dat
 
 ## Demo build (stateless, browser-only)
 
-Separate, self-contained Docker image for hosting a public demo. Same source tree as the main app, gated on `VITE_DEMO_MODE=true`. Each visitor gets an isolated copy of `data/timelog.db` running as in-browser SQLite (`sql.js` WASM), persisted to that visitor's IndexedDB. Mutations never cross between visitors. There is no API server.
+Separate, self-contained Docker image for hosting a public demo. Same source tree as the main app, gated on `VITE_DEMO_MODE=true`. Each visitor gets an isolated copy of the tracked seed DB at `frontend/seed/timelog.db` running as in-browser SQLite (`sql.js` WASM), persisted to that visitor's IndexedDB. Mutations never cross between visitors. There is no API server.
 
 ```bash
 docker compose -f docker-compose.demo.yml up --build -d   # serves on :3002
@@ -72,7 +72,7 @@ The main `Dockerfile`, `docker-compose.yml`, and `tlstart` flow are untouched.
 
 ### Demo image pipeline
 
-- **`frontend/Dockerfile.demo`** — multi-stage. Stage 1 (node:20-alpine) copies `frontend/` + `data/timelog.db` → `static/seed/timelog.db`, runs `npm run build:demo`. Stage 2 (`nginx:alpine`) serves `build/` via `nginx.demo.conf`.
+- **`frontend/Dockerfile.demo`** — multi-stage. Stage 1 (node:20-alpine) copies `frontend/` (which includes the tracked `frontend/seed/timelog.db`) and copies that seed into `static/seed/timelog.db`, then runs `npm run build:demo`. Stage 2 (`nginx:alpine`) serves `build/` via `nginx.demo.conf`. The local `data/timelog.db` working DB is NOT used by the demo build — the demo seed is a separate tracked file so the demo image is reproducible from a fresh checkout. Refresh the seed with `cp data/timelog.db frontend/seed/timelog.db && git commit frontend/seed/timelog.db` whenever you want the demo to reflect new local data.
 - **`frontend/nginx.demo.conf`** — SPA fallback (`try_files $uri $uri/ /index.html`), gzip on JS/CSS/wasm, immutable cache for `/_app/immutable/`. **Do NOT add a `types {}` block** — it replaces the default mime map and breaks `text/html` serving (the index ends up as `application/octet-stream` and the browser downloads it instead of rendering).
 - **`docker-compose.demo.yml`** — single `demo` service, `build.context: .` + `dockerfile: frontend/Dockerfile.demo`, port `3002:80`, no volumes, no env vars. Compose project name shares `timelog-vibed` with the main stack so orphan warnings about `api`/`frontend` are expected.
 - **`.dockerignore`** at repo root — excludes `.git`, `node_modules`, `.svelte-kit`, `build`, `frontend/static/seed`, etc. from the demo build context. The main build (`context: ./frontend`) is unaffected.
