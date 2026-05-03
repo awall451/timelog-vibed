@@ -21,19 +21,33 @@ export default defineConfig({
   projects: [
     {
       name: 'razr-portrait',
+      testIgnore: /demo-recording\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 412, height: 919 }, hasTouch: true, isMobile: true },
     },
     {
       name: 'iphone-se',
+      testIgnore: /demo-recording\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 }, hasTouch: true, isMobile: true },
     },
     {
       name: 'pixel-7',
+      testIgnore: /demo-recording\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true },
     },
     {
       name: 'tablet',
+      testIgnore: /demo-recording\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
+    },
+    {
+      name: 'desktop-record',
+      testMatch: /demo-recording\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
+        video: { mode: 'on', size: { width: 1280, height: 720 } },
+        launchOptions: { slowMo: 250 },
+      },
     },
   ],
 });

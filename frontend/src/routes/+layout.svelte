@@ -22,7 +22,7 @@
     <nav>
       <a href="/" class="brand">🕐 Timelog</a>
       <div class="links">
-        <a href="/">Dashboard</a>
+        <a href="/dashboard">Dashboard</a>
         <a href="/entries">Entries</a>
         <a href="/charts">Charts</a>
         {#if !import.meta.env.VITE_DEMO_MODE && settings.aiSyncEnabled}
