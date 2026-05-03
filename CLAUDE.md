@@ -106,42 +106,29 @@ CREATE TABLE IF NOT EXISTS entries (
 
 ## Planned Features (Core — MIT)
 
-### 1. Entries Page — GitHub-style Heatmap
-52×7 SVG grid (last ~1 year), color intensity = hours logged per day. Pure SVG, no library. Filter-aware:
-- Intensity derived from `allEntries` filtered by current `project` + `category` (not date)
-- Clicking a cell sets `selectedDate` → table filters to that day + cell highlights
-- Changing project/category filter → heatmap intensities re-derive reactively
-- 5 intensity levels (0h, <2h, <4h, <6h, 6h+) using CSS vars for theme compat
-- Month labels above columns, tooltip on hover (date + hours)
-- No new API endpoint needed — all data already client-side in `allEntries`
+### Already shipped
 
-### 2. Charts Page (`/charts`) — Analytics Dashboard
-New route with multiple pure SVG/CSS charts, no charting library. Candidate charts:
-- **Donut — Hours by Project** (all time or date-ranged)
-- **Donut — Hours by Category**
-- **Stacked bar — Daily hours last 14 days**, color segments per project
-- **Weekly pace line** — daily hours vs 8h goal line, last 4 weeks (sparkline style)
-- **Project × Category heatmap** — grid: rows=projects, cols=categories, cell=hours; shows where time actually goes
-- Date range picker to scope all charts simultaneously
-- Charts use same CSS vars as themes so they look native
+- **Entries Page — GitHub-style Heatmap.** 52×7 SVG grid (last ~1 year), color intensity = hours logged per day, filter-aware. Pure SVG, no library. Lives in `frontend/src/routes/entries/+page.svelte`.
+- **Charts Page (`/charts`) — Analytics Dashboard.** Donuts, daily stacked bars, weekly pace, project × category heatmap — pure SVG/CSS. Date-range picker scopes all charts.
+- **Live Timer.** Start/stop widget; on stop, pre-fills the log form via `localStorage` `timer-prefill`. State persisted across reloads. Lives in `frontend/src/lib/TimerWidget.svelte`.
 
-### 3. Live Timer
-Start/stop timer → auto-calculates hours on stop, pre-fills log form. Biggest UX gap vs Toggl. State persisted to `localStorage` so refresh doesn't lose it.
+### Next up — agreed order
 
-### 4. Entry Templates
-Save common project+category+description combos. One-click to pre-fill log form. Stored in `localStorage`, no schema change needed.
+#### 1. Export — PDF timesheet
+CSV already exists via CLI (`tlexport`). Add PDF export from the frontend — grouped by project, date range selectable. Browser print API or a small lib. Affects `/entries` (export button) or a new `/export` modal.
 
-### 5. Weekly Goal Tracking
-Set target hours/week per project. Progress bar on dashboard. Config stored in `localStorage`.
+#### 2. Entry Templates
+Save common project + category + description combos. One-click to pre-fill the log form. Stored in `localStorage`, no schema change. Settings page to manage templates; quick-pick UI on `/log`.
 
-### 6. Export (CSV + PDF)
-CSV already exists via CLI (`tlexport`). Add PDF timesheet export from frontend — grouped by project, date range selectable. Uses browser print API or a lightweight lib.
+#### 3. Tags
+Free-form labels on entries, filterable. Adds a dimension without a schema overhaul — comma-separated text column on `entries`, parsed client-side. Filter UI on `/entries` and a tag-aware breakdown on `/charts`.
 
-### 7. Tags
-Free-form labels on entries, filterable. Adds dimension without schema overhaul — stored as comma-separated text column, parsed client-side.
+#### 4. PWA / Mobile Layout
+Service worker + manifest → installable, works offline for the log form. Mobile-friendly layout for field logging. Mobile horizontal-overflow fixes already in (commit `8dde8d4`); PWA install + offline log form is the remaining work.
 
-### 8. PWA / Mobile Layout
-Service worker + manifest → installable, works offline for log form. Mobile-friendly layout for field logging.
+### Backlogged — defer until Team Mode
+
+- **Weekly Goal Tracking (per-project).** Originally planned as `localStorage` config: per-project hours/week target with a dashboard progress bar. **Backlogged because** in single-user mode this is a subjective self-target with limited daily lift; the same problem is much better solved in team mode as **manager-allocated hours** — a project manager allocates X hours to a team member over Y days, with both sides tracking progress against that allocation. Re-evaluate once team mode lands and reuse the allocation primitive instead of building a single-user shim that gets thrown away. Daily goal (already in settings) is enough for single-user pacing.
 
 ## Future Vision — Multi-User / Team Edition
 
@@ -188,9 +175,10 @@ invoices(id, org_id, project_id, period_start, period_end, pdf_path, generated_a
 - **Auth** — OIDC/JWT middleware, Dex or direct SSO
 - **RBAC** — admin / manager / member views
 - **Approval workflow** — submit → manager approves → entry locked
+- **Hour allocations** — manager allocates X hours to a team member over Y days for a project; both sides track progress against the allocation. **Subsumes the backlogged single-user "Weekly Goal Tracking" feature** — weekly goals were really just self-set allocations; in team mode the allocation primitive is real (set by a manager, scoped to a project, time-bounded) and the same UI surfaces it on the personal dashboard.
 - **Billing engine** — hours × rate → invoice PDF (`weasyprint` or `reportlab`)
 - **Admin dashboard** — cross-user views, utilization reports
-- **Project budgets** — hour caps, alerts
+- **Project budgets** — hour caps, alerts (org-level cousin of allocations)
 - **Client portal** — read-only billed-hours view for clients
 - **Slack/Teams bot** — `/log 2h ProjectX dev` → entry created
 - **Rate cards** — $/hr per user or per project
