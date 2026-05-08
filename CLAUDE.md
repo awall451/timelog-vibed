@@ -126,6 +126,20 @@ Free-form labels on entries, filterable. Adds a dimension without a schema overh
 #### 4. PWA / Mobile Layout
 Service worker + manifest → installable, works offline for the log form. Mobile-friendly layout for field logging. Mobile horizontal-overflow fixes already in (commit `8dde8d4`); PWA install + offline log form is the remaining work.
 
+### Security hygiene — supply chain & image scanning
+
+Tracks `trivy image` findings against the production `timelog-vibed-frontend` container. **Root cause for the May 2026 scan:** all 11 HIGH CVEs (`cross-spawn`, `glob`, `minimatch`, `tar`) lived inside `usr/local/lib/node_modules/npm/node_modules/...` — i.e. they shipped with the **npm CLI bundled into `node:20-alpine`**, not from our app's `package.json`. Our own dep tree was already clean (`npm audit` shows zero HIGH/CRITICAL). Runtime risk in `node build` is nil since npm is never invoked at request time; the findings are scanner-surface noise driven by what the base image happens to ship.
+
+**Done:**
+- **Bumped frontend base image to `node:22-alpine`** (`frontend/Dockerfile`, `frontend/Dockerfile.demo`). node:22 ships npm 10.9.7 which drops the 11 vulnerable transitive deps from the previous npm 10.8.2. Re-scan confirms 11 HIGH → 1 HIGH (only `picomatch` 4.0.3 remains in bundled npm; fixed in npm ≥ 11.14.0).
+- **Added npm `overrides` block** in `frontend/package.json` pinning `cross-spawn ≥7.0.5`, `glob ≥10.5.0`, `minimatch ≥9.0.7`, `tar ≥7.5.3`. Currently no-op against today's dep tree (modern `@sveltejs/kit` + `vite 8` no longer pull these in) but defense-in-depth for future transitive bumps.
+
+**Next:**
+- **Eliminate the last `picomatch` HIGH.** Either `RUN npm install -g npm@latest` in the final stage of `frontend/Dockerfile`, or drop npm from the final image entirely by copying pruned `node_modules` from the builder (`npm prune --omit=dev` in builder, `COPY --from=builder /app/node_modules ./node_modules` in the runtime stage, no `npm install` step). The latter is cleaner and shrinks the image.
+- **Pin base image digest.** Replace `FROM node:22-alpine` with `node:22-alpine@sha256:...` so scans are reproducible and unattended `:latest`-style drift can't smuggle regressions back in.
+- **Trivy in CI.** Add a job to `.github/workflows/ci.yml` that builds the frontend image and runs `trivy image --severity HIGH,CRITICAL --exit-code 1`. Fails PRs that introduce new HIGH/CRITICAL CVEs without an explicit allow-list entry.
+- **Renovate or Dependabot.** Auto-PR transitive bumps and base-image bumps so the overrides block + manual base bumps aren't the only mitigation paths. Group dev-dep bumps weekly to keep PR noise low.
+
 ### Backlogged — defer until Team Mode
 
 - **Weekly Goal Tracking (per-project).** Originally planned as `localStorage` config: per-project hours/week target with a dashboard progress bar. **Backlogged because** in single-user mode this is a subjective self-target with limited daily lift; the same problem is much better solved in team mode as **manager-allocated hours** — a project manager allocates X hours to a team member over Y days, with both sides tracking progress against that allocation. Re-evaluate once team mode lands and reuse the allocation primitive instead of building a single-user shim that gets thrown away. Daily goal (already in settings) is enough for single-user pacing.
