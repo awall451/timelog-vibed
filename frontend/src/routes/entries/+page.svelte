@@ -381,7 +381,7 @@
             width={CELL}
             height={CELL}
             rx="2"
-            fill={cell.level > 0 && cell.inRange ? 'var(--accent)' : 'var(--surface2)'}
+            fill={cell.level > 0 && cell.inRange ? 'var(--accent)' : 'var(--heatmap-empty, var(--surface2))'}
             fill-opacity={cell.level > 0 && cell.inRange ? FILL_OP[cell.level] : 1}
             stroke={selectedDate === cell.date ? 'var(--text)' : 'none'}
             stroke-width="1.5"
@@ -408,7 +408,7 @@
           <svg width={CELL} height={CELL} viewBox="0 0 {CELL} {CELL}" style="display:block">
             <rect
               width={CELL} height={CELL} rx="2"
-              fill={lvl > 0 ? 'var(--accent)' : 'var(--surface2)'}
+              fill={lvl > 0 ? 'var(--accent)' : 'var(--heatmap-empty, var(--surface2))'}
               fill-opacity={lvl > 0 ? FILL_OP[lvl] : 1}
             />
           </svg>

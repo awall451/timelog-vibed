@@ -82,6 +82,7 @@
     --accent: #7aa2f7;
     --accent-hover: #3d59a1;
     --accent-light: #a9b1d6;
+    --heatmap-empty: #232742;
     --text: #c0caf5;
     --text-secondary: #a9b1d6;
     --text-muted-mid: #9aa5ce;
