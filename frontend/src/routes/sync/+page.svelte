@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { api, type ProposedEntry } from '$lib/api';
+  import { api, type ProposedEntry, type AiSource } from '$lib/api';
   import { settings } from '$lib/settings.svelte';
 
   const CATEGORIES = ['Development', 'Debugging', 'Planning', 'Documentation', 'Testing', 'Review'];
@@ -23,10 +23,25 @@
   let syncing = $state(false);
   let syncResult = $state<{ inserted: number } | null>(null);
 
+  const enabledSources = $derived<AiSource[]>([
+    settings.claudeSourceEnabled ? ('claude' as const) : null,
+    settings.cursorSourceEnabled ? ('cursor' as const) : null,
+  ].filter((s): s is AiSource => s !== null));
+
   const selectedCount = $derived(entries.filter(e => e.selected).length);
   const hasNew = $derived(entries.some(e => !e.already_exists));
 
+  function sourceLabel(sources: AiSource[]): string {
+    if (sources.length === 0) return '—';
+    if (sources.length === 1) return sources[0] === 'claude' ? 'Claude' : 'Cursor';
+    return 'Claude + Cursor';
+  }
+
   async function analyze() {
+    if (enabledSources.length === 0) {
+      error = 'No sources enabled. Turn on Claude Code or Cursor in Settings → AI Sync.';
+      return;
+    }
     loading = true;
     error = null;
     analyzed = false;
@@ -34,7 +49,7 @@
     entries = [];
 
     try {
-      const result = await api.claude.preview(date);
+      const result = await api.aiSync.preview(date, enabledSources);
       entries = result.entries.map(e => ({
         ...e,
         selected: !e.already_exists,
@@ -46,7 +61,7 @@
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       error = msg.includes('503')
-        ? 'Claude history not found in the container. Add "- ~/.claude:/root/.claude:ro" to api volumes in docker-compose.yml and run tlstart.'
+        ? 'AI source history not found in the container. Mount ~/.claude and/or ~/.cursor in docker-compose.yml (see Settings → AI Sync) and run tlstart.'
         : `Failed to analyze sessions: ${msg}`;
     } finally {
       loading = false;
@@ -60,7 +75,7 @@
     syncing = true;
     error = null;
     try {
-      const result = await api.claude.sync(
+      const result = await api.aiSync.sync(
         date,
         toSync.map(e => ({
           project: e.project,
@@ -70,7 +85,6 @@
         }))
       );
       syncResult = result;
-      // mark synced entries as existing
       for (const entry of entries) {
         if (entry.selected) entry.already_exists = true;
       }
@@ -168,6 +182,7 @@
           <tr>
             <th class="col-check"></th>
             <th class="col-project">Project</th>
+            <th class="col-source">Source</th>
             <th class="col-category">Category</th>
             <th class="col-hours">Hours</th>
             <th class="col-description">Description</th>
@@ -185,6 +200,11 @@
               </td>
               <td class="col-project">
                 <span class="project-name">{entry.project}</span>
+              </td>
+              <td class="col-source">
+                <span class="source-badge" class:multi={entry.sources.length > 1}>
+                  {sourceLabel(entry.sources)}
+                </span>
               </td>
 
               <!-- Category — click to edit -->
@@ -457,10 +477,28 @@
   }
 
   .col-check { width: 2.5rem; }
-  .col-project { width: 14rem; }
+  .col-project { width: 12rem; }
+  .col-source { width: 8.5rem; }
   .col-category { width: 11rem; }
   .col-hours { width: 5.5rem; }
   .col-description { /* fills remaining */ }
+
+  .source-badge {
+    background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+    border-radius: 4px;
+    color: var(--text-muted);
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.2rem 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .source-badge.multi {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+  }
 
   .project-name {
     font-weight: 600;

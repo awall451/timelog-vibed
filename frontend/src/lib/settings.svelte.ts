@@ -11,6 +11,8 @@ export interface Settings {
   theme: Theme;
   dailyGoalHours: number;
   aiSyncEnabled: boolean;
+  claudeSourceEnabled: boolean;
+  cursorSourceEnabled: boolean;
   weekStart: WeekStart;
   timerRoundingMinutes: RoundingMinutes;
   confirmDelete: boolean;
@@ -21,6 +23,8 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'default',
   dailyGoalHours: 8,
   aiSyncEnabled: true,
+  claudeSourceEnabled: true,
+  cursorSourceEnabled: false,
   weekStart: 'sun',
   timerRoundingMinutes: 15,
   confirmDelete: true,
@@ -42,6 +46,8 @@ function sanitize(raw: unknown): Settings {
     out.dailyGoalHours = r.dailyGoalHours;
   }
   if (typeof r.aiSyncEnabled === 'boolean') out.aiSyncEnabled = r.aiSyncEnabled;
+  if (typeof r.claudeSourceEnabled === 'boolean') out.claudeSourceEnabled = r.claudeSourceEnabled;
+  if (typeof r.cursorSourceEnabled === 'boolean') out.cursorSourceEnabled = r.cursorSourceEnabled;
   if (r.weekStart === 'sun' || r.weekStart === 'mon') out.weekStart = r.weekStart;
   if (r.timerRoundingMinutes === 0 || r.timerRoundingMinutes === 5 || r.timerRoundingMinutes === 15 || r.timerRoundingMinutes === 30) {
     out.timerRoundingMinutes = r.timerRoundingMinutes;
