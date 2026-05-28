@@ -28,6 +28,14 @@
     settings.cursorSourceEnabled ? ('cursor' as const) : null,
   ].filter((s): s is AiSource => s !== null));
 
+  const sourcesLabel = $derived(
+    enabledSources.length === 0
+      ? 'no sources'
+      : enabledSources
+          .map((s) => (s === 'claude' ? 'Claude Code' : 'Cursor'))
+          .join(' + '),
+  );
+
   const selectedCount = $derived(entries.filter(e => e.selected).length);
   const hasNew = $derived(entries.some(e => !e.already_exists));
 
@@ -105,7 +113,7 @@
 <div class="page">
   <div class="page-header">
     <h1>AI Sync</h1>
-    <p class="subtitle">Generate timelog entries from your Claude Code sessions</p>
+    <p class="subtitle">Generate timelog entries from your {sourcesLabel} sessions</p>
   </div>
 
   {#if import.meta.env.VITE_DEMO_MODE}
@@ -122,7 +130,7 @@
       <p class="disabled-title">AI Sync is disabled.</p>
       <p class="disabled-hint">
         Turn it on in <a href="/settings/ai-sync">Settings → AI Sync</a> to analyze
-        your Claude Code session history.
+        your AI coding-assistant session history.
       </p>
     </div>
   {:else}
@@ -148,7 +156,7 @@
     <div class="loading-status" role="status" aria-live="polite">
       <span class="spinner spinner-lg" aria-hidden="true"></span>
       <div class="loading-text">
-        <strong>Analyzing Claude sessions for {date}…</strong>
+        <strong>Analyzing {sourcesLabel} sessions for {date}…</strong>
         <span class="loading-hint">Running AI inference on each project — may take 10–30 seconds.</span>
       </div>
     </div>
