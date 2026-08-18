@@ -47,7 +47,7 @@ export const api = {
 		},
 		last: async (): Promise<Entry> => {
 			const db = await getDb();
-			const r = one<Entry>(db, 'SELECT * FROM entries ORDER BY id DESC LIMIT 1');
+			const r = one<Entry>(db, 'SELECT * FROM entries ORDER BY date DESC, id DESC LIMIT 1');
 			if (!r) throw new Error('API error: 404');
 			return r;
 		},

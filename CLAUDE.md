@@ -47,7 +47,7 @@ Two services — `api` and `frontend`. The `api` container sets `TIMELOG_DB=/dat
 
 ## Demo build (stateless, browser-only)
 
-Separate, self-contained Docker image for hosting a public demo. Same source tree as the main app, gated on `VITE_DEMO_MODE=true`. Each visitor gets an isolated copy of the tracked seed DB at `frontend/seed/timelog.db` running as in-browser SQLite (`sql.js` WASM), persisted to that visitor's IndexedDB. Mutations never cross between visitors. There is no API server.
+Separate, self-contained Docker image for hosting a public demo. Live at **https://timelog.sigilworks.dev** (Azure Static Web Apps Free, deployed by `azure-pipelines.yml` — see `docs/demo-hosting.md`). Same source tree as the main app, gated on `VITE_DEMO_MODE=true`. Each visitor gets an isolated copy of the tracked seed DB at `frontend/seed/timelog.db` running as in-browser SQLite (`sql.js` WASM), persisted to that visitor's IndexedDB. Mutations never cross between visitors. There is no API server.
 
 ```bash
 docker compose -f docker-compose.demo.yml up --build -d   # serves on :3002
@@ -72,7 +72,7 @@ The main `Dockerfile`, `docker-compose.yml`, and `tlstart` flow are untouched.
 
 ### Demo image pipeline
 
-- **`frontend/Dockerfile.demo`** — multi-stage. Stage 1 (node:20-alpine) copies `frontend/` (which includes the tracked `frontend/seed/timelog.db`) and copies that seed into `static/seed/timelog.db`, then runs `npm run build:demo`. Stage 2 (`nginx:alpine`) serves `build/` via `nginx.demo.conf`. The local `data/timelog.db` working DB is NOT used by the demo build — the demo seed is a separate tracked file so the demo image is reproducible from a fresh checkout. Refresh the seed with `cp data/timelog.db frontend/seed/timelog.db && git commit frontend/seed/timelog.db` whenever you want the demo to reflect new local data.
+- **`frontend/Dockerfile.demo`** — multi-stage. Stage 1 (node:20-alpine) copies `frontend/` (which includes the tracked `frontend/seed/timelog.db`) and copies that seed into `static/seed/timelog.db`, then runs `npm run build:demo`. Stage 2 (`nginx:alpine`) serves `build/` via `nginx.demo.conf`. The local `data/timelog.db` working DB is NOT used by the demo build — the demo seed is a separate tracked file, **generated** by `scripts/gen-demo-seed.py` (see "Demo seed + date rotation" below) so the demo image is reproducible from a fresh checkout. Never hand-copy `data/timelog.db` over the seed.
 - **`frontend/nginx.demo.conf`** — SPA fallback (`try_files $uri $uri/ /index.html`), gzip on JS/CSS/wasm, immutable cache for `/_app/immutable/`. **Do NOT add a `types {}` block** — it replaces the default mime map and breaks `text/html` serving (the index ends up as `application/octet-stream` and the browser downloads it instead of rendering).
 - **`docker-compose.demo.yml`** — single `demo` service, `build.context: .` + `dockerfile: frontend/Dockerfile.demo`, port `3002:80`, no volumes, no env vars. Compose project name shares `timelog-vibed` with the main stack so orphan warnings about `api`/`frontend` are expected.
 - **`.dockerignore`** at repo root — excludes `.git`, `node_modules`, `.svelte-kit`, `build`, `frontend/static/seed`, etc. from the demo build context. The main build (`context: ./frontend`) is unaffected.
@@ -80,6 +80,15 @@ The main `Dockerfile`, `docker-compose.yml`, and `tlstart` flow are untouched.
 ### Adding new features
 
 Because the demo and main builds share one source tree, every UI feature added to a route or component automatically appears in the demo. The only file that needs updating per backend change is `frontend/src/lib/demo/api.ts` — add a matching method whenever `timelog/api.py` gains a new endpoint that the frontend calls. The `api` shape in `api.ts` and `demo/api.ts` must stay in lockstep.
+
+### Demo seed + date rotation
+
+The seed is one full generated year of entries and is **re-yeared on every load** so the demo never goes stale:
+
+- **`scripts/gen-demo-seed.py`** — deterministic generator (stdlib only). Draws project/category/description/hours from `scripts/demo-seed-corpus.json` (180 rows exported from the original real data, month names scrubbed) and lays them over calendar year 2026 with a sparse profile (~88% weekdays active, ~45% weekend days, mostly 1 entry/day, holidays nearly empty). Never emits `02-29`. Same `--seed` ⇒ byte-identical rows. Regenerate with `python3 scripts/gen-demo-seed.py` and commit `frontend/seed/timelog.db`. Edit the corpus JSON to change vocabulary; bump `--seed` to reshuffle.
+- **`reyear()` in `frontend/src/lib/demo/db.ts`** — runs inside `getDb()` right after the DB is opened (fresh seed *and* IndexedDB-hydrated copies): `year = (MM-DD <= today's MM-DD) ? thisYear : thisYear - 1`, so every row lands in the trailing 365-day window ending today. Idempotent/stateless (`WHERE date <> new_date` guard; persists only when rows changed). `02-29` rows are skipped. Visitor-added entries are re-yeared too (harmless). Known trade-off: same MM-DD ⇒ weekday drifts by one each year.
+- **`api.entries.last`** orders by `date DESC, id DESC` — after re-yearing, highest `id` is no longer the newest date.
+- **`tests/e2e/demo-rotation.spec.ts`** — guards it: newest date within 6 days of today, nothing in the future, window spans a year.
 
 ### Resetting demo data
 
