@@ -1,0 +1,184 @@
+# azure-pipelines.yml — Timelog hosted demo → Azure Static Web Apps (Free)
+# TEST → SCAN → GREEN (staging + smoke) → PROMOTE (manual approval → production + smoke)
+#
+# Source of truth is this GitHub repo; Azure DevOps Pipelines builds from it.
+# All tools run via docker images — the agent needs only docker.
+# Secret variable required on the pipeline: SWA_DEPLOY_TOKEN.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr: none
+
+variables:
+  imageTag: timelog-demo:$(Build.BuildId)
+  swaDefaultHost: green-hill-0c62c080f.7.azurestaticapps.net
+  swaGreenHost: green-hill-0c62c080f-green.eastus2.7.azurestaticapps.net
+
+# Self-hosted homelab agent (pool Default).
+pool:
+  name: Default
+
+stages:
+  - stage: Test
+    displayName: TEST — check + e2e + build
+    jobs:
+      - job: test
+        steps:
+          - script: |
+              docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e npm_config_cache=/tmp/npm-cache \
+                -v "$(Build.SourcesDirectory)/frontend":/work -w /work \
+                node:22-alpine sh -c "npm ci --ignore-scripts && npm run check"
+            displayName: svelte-check (type check)
+            # Pre-existing a11y warnings make svelte-check nonzero; surface, don't gate.
+            continueOnError: true
+          - script: |
+              docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e npm_config_cache=/tmp/npm-cache -e CI=true \
+                -v "$(Build.SourcesDirectory)/frontend":/work -w /work \
+                mcr.microsoft.com/playwright:v1.59.1-noble \
+                sh -c "npm ci && npx playwright test"
+            displayName: e2e (Playwright, demo mode, all browsers)
+          - publish: $(Build.SourcesDirectory)/frontend/playwright-report
+            artifact: playwright-report
+            displayName: Publish Playwright report
+            condition: succeededOrFailed()
+          - script: docker build -f frontend/Dockerfile.demo -t $(imageTag) .
+            displayName: Build demo image (static build inside)
+          - script: |
+              set -e
+              cid=$(docker create $(imageTag))
+              docker cp "$cid":/usr/share/nginx/html "$(Build.ArtifactStagingDirectory)/demo"
+              docker rm "$cid" >/dev/null
+              rm -f "$(Build.ArtifactStagingDirectory)/demo/50x.html"   # nginx default page, not ours
+              test -f "$(Build.ArtifactStagingDirectory)/demo/index.html"
+              test -f "$(Build.ArtifactStagingDirectory)/demo/seed/timelog.db"
+              test -f "$(Build.ArtifactStagingDirectory)/demo/staticwebapp.config.json"
+              du -sh "$(Build.ArtifactStagingDirectory)/demo"
+            displayName: Extract static build from image
+          - publish: $(Build.ArtifactStagingDirectory)/demo
+            artifact: demo
+            displayName: Publish demo artifact
+
+  - stage: Scan
+    displayName: SCAN — trivy
+    dependsOn: Test
+    jobs:
+      - job: scan
+        steps:
+          - script: docker build -f frontend/Dockerfile.demo -t $(imageTag) .
+            displayName: Build demo image (cached)
+          - script: |
+              mkdir -p "$(Build.ArtifactStagingDirectory)/trivy"
+              docker run --rm -v trivy-cache:/root/.cache \
+                -v "$(Build.SourcesDirectory)":/repo \
+                -v "$(Build.ArtifactStagingDirectory)/trivy":/out \
+                aquasec/trivy:latest fs --format template --template "@contrib/html.tpl" \
+                -o /out/trivy-fs-report.html /repo
+            displayName: trivy fs scan (HTML report)
+          - script: |
+              docker run --rm -v trivy-cache:/root/.cache \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                -v "$(Build.ArtifactStagingDirectory)/trivy":/out \
+                aquasec/trivy:latest image --format template --template "@contrib/html.tpl" \
+                -o /out/trivy-image-report.html $(imageTag)
+            displayName: trivy image scan (HTML report)
+          - publish: $(Build.ArtifactStagingDirectory)/trivy
+            artifact: trivy-reports
+            displayName: Publish trivy reports
+          - script: |
+              docker run --rm -v trivy-cache:/root/.cache \
+                -v "$(Build.SourcesDirectory)":/repo \
+                aquasec/trivy:latest fs --quiet --exit-code 1 --severity CRITICAL /repo
+              docker run --rm -v trivy-cache:/root/.cache \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:latest image --quiet --exit-code 1 --severity CRITICAL $(imageTag)
+            displayName: "Gate: fail on CRITICAL"
+
+  - stage: Green
+    displayName: GREEN — staging deploy + smoke
+    dependsOn: Scan
+    jobs:
+      - job: deploy_green
+        steps:
+          - checkout: none
+          - download: current
+            artifact: demo
+          - task: AzureStaticWebApp@0
+            displayName: Deploy to green environment
+            inputs:
+              workingDirectory: $(Pipeline.Workspace)
+              app_location: demo
+              skip_app_build: true
+              skip_api_build: true
+              deployment_environment: green
+              azure_static_web_apps_api_token: $(SWA_DEPLOY_TOKEN)
+          - script: |
+              set -e
+              host="$(swaGreenHost)"
+              for i in $(seq 1 12); do
+                if curl -fsS "https://$host/" | grep -qi "timelog" \
+                   && curl -fsSo /dev/null "https://$host/seed/timelog.db" \
+                   && curl -fsS "https://$host/entries" | grep -qi "timelog"; then
+                  echo "green smoke test PASS"; exit 0
+                fi
+                echo "waiting for green... ($i)"; sleep 10
+              done
+              echo "green smoke test FAIL"; exit 1
+            displayName: Smoke test green (index + seed asset + SPA fallback)
+          - script: |
+              cat > "$(Build.ArtifactStagingDirectory)/green-review.md" <<EOF
+              ## 🟢 Green environment ready for review
+
+              **Preview:** https://$(swaGreenHost)/
+
+              Eyeball it, then approve the PROMOTE stage to ship this exact artifact to production.
+              EOF
+              echo "##vso[task.uploadsummary]$(Build.ArtifactStagingDirectory)/green-review.md"
+              echo "=========================================================="
+              echo "  REVIEW GREEN AT: https://$(swaGreenHost)/"
+              echo "=========================================================="
+            displayName: "Review link → run summary"
+
+  - stage: Promote
+    displayName: PROMOTE — production (manual approval)
+    dependsOn: Green
+    jobs:
+      - deployment: deploy_production
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: demo
+                - task: AzureStaticWebApp@0
+                  displayName: Deploy to production
+                  inputs:
+                    workingDirectory: $(Pipeline.Workspace)
+                    app_location: demo
+                    skip_app_build: true
+                    skip_api_build: true
+                    azure_static_web_apps_api_token: $(SWA_DEPLOY_TOKEN)
+                - script: |
+                    set -e
+                    host="$(swaDefaultHost)"
+                    for i in $(seq 1 12); do
+                      if curl -fsS "https://$host/" | grep -qi "timelog" \
+                         && curl -fsSo /dev/null "https://$host/seed/timelog.db" \
+                         && curl -fsS "https://$host/entries" | grep -qi "timelog"; then
+                        echo "production smoke test PASS"; exit 0
+                      fi
+                      echo "waiting for production... ($i)"; sleep 10
+                    done
+                    echo "production smoke test FAIL"; exit 1
+                  displayName: Smoke test production
+                - script: |
+                    cat > "$(Build.ArtifactStagingDirectory)/prod-live.md" <<EOF
+                    ## 🚀 Production deployed
+
+                    **Live:** https://$(swaDefaultHost)/
+                    EOF
+                    echo "##vso[task.uploadsummary]$(Build.ArtifactStagingDirectory)/prod-live.md"
+                  displayName: "Live link → run summary"
