@@ -1,0 +1,1082 @@
+[
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented player dash mechanic.",
+  "hours": 4.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Fixed enemy pathfinding bug.",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Meetings",
+  "description": "Sprint planning with team.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Optimized track loading performance.",
+  "hours": 5.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "CI/CD",
+  "description": "Updated GitHub Actions build workflow.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Weekly sync with artist and designer.",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Added health regeneration system.",
+  "hours": 4.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Resolved controller input lag issue.",
+  "hours": 3.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Watched Unreal Engine networking tutorial.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Refactored inventory UI logic.",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed pull requests from teammate.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Implemented ghost replay system.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Updated landing page screenshots.",
+  "hours": 2.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Configured staging server deployment.",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Balanced early-game enemy stats.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added new desert track assets.",
+  "hours": 4.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Practiced shader programming exercises.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Bugfixing",
+  "description": "Fixed crash on level transition.",
+  "hours": 2.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Ran multiplayer latency tests.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Quarterly roadmap discussion.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Integrated new boss attack patterns",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Prepared monthy expense summary",
+  "hours": 1.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read article on ECS architecture patterns.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Reduced memory usage on track assets.",
+  "hours": 3.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Implemented ambient cave sound effects.",
+  "hours": 2.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Drafted Steam store update post.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Update readme",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Update Readme",
+  "hours": 1.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Learning some SQL funsie stuff!",
+  "hours": 1.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Bugfixing",
+  "description": "Fixed a bug on hanger 18",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Created new sprites for shadow creatures.",
+  "hours": 4.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Prototyped player movement and jump tuning",
+  "hours": 3.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Blocked out initial kart handling parameters",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Weekly sync with artist and designer",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Sketched early-game enemy behaviors and stats",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read notes on ECS architecture patterns",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Fixed camera jitter on sharp turns",
+  "hours": 1.5
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Updated homepage hero section copy and layout",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Refreshed build scripts and cleaned up CI warnings",
+  "hours": 2.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Added placeholder SFX for dash and landing",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Ran controller feel tests on multiple devices",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Reviewed budget for upcoming sprint",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented basic inventory data model",
+  "hours": 3.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Reduced texture memory usage on track props",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Watched Unreal networking tutorial (replication basics)",
+  "hours": 1.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Drafted end-of-year dev update post",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed teammate PRs for UI refactor",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Implemented ghost replay file format draft",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Quarterly roadmap discussion (prep notes)",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented stamina drain for dash mechanic",
+  "hours": 3.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added basic lap timing + checkpoint validation",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Sprint planning and task grooming",
+  "hours": 1.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Practiced shader exercises (materials + lighting)",
+  "hours": 1.5
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Updated landing page screenshots and captions",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Bugfixing",
+  "description": "Fixed crash on level transition (asset load order)",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Resolved controller input lag regression",
+  "hours": 2.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Tweaked GitHub Actions caching to speed builds",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Balanced early-game enemy spawn rates",
+  "hours": 2.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Multiplayer latency test session and notes",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Prepared monthly expense summary",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Implemented ambient cave loop + volume tuning",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added desert track greybox and checkpoint placement",
+  "hours": 4.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read article on game netcode interpolation",
+  "hours": 1.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Drafted Steam store update post",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed PRs for inventory UI logic changes",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Reduced memory usage on track assets (LOD pass)",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Integrated new boss attack patterns (prototype)",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Bugfixing",
+  "description": "Fixed a bug on hanger 18 (ops checklist update)",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Updated README and onboarding notes",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Refactored inventory UI state handling",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Learning some SQL funsie stuff! (views + aggregates)",
+  "hours": 1.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Meeting about a new feature",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Wired up inventory slot drag-and-drop logic.",
+  "hours": 3.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Meetings",
+  "description": "Mid-sprint check-in with team.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added kart selection screen prototype.",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Reviewed mid-month expenses.",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Bugfixing",
+  "description": "Fixed dialogue trigger firing twice on save load.",
+  "hours": 2.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read chapter on data-driven game design.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented year-end save checkpoint system.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Scheduled new year social posts.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Code Review",
+  "description": "Reviewed kart physics refactor PRs.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Added cutscene skip logic.",
+  "hours": 2.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Roughed out power-up pickup spawn system.",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Retrospective for last sprint.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Revised mid-boss arena layout.",
+  "hours": 3.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Explored Godot 4 scene instancing patterns.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Regression test after physics update.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Added project showcase cards.",
+  "hours": 2.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Added footstep SFX variations for stone surfaces.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Implemented podium celebration screen.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Fixed flaky deployment step in staging pipeline.",
+  "hours": 2.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Worked through Rust ownership chapter exercises.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Wired cutscene trigger to quest completion flag.",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Studio all-hands — product priorities.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Profiled and trimmed draw calls on main menu.",
+  "hours": 2.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed shader refactor branch.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented companion AI follow behavior.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Prepared monthly expense summary.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Design",
+  "description": "Iterated on item box placement across three tracks.",
+  "hours": 3.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Completed Godot multiplayer networking tutorial.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Added devlog section and first entry.",
+  "hours": 3.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Fixed item box spawn overlap at track start.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Testing",
+  "description": "Playthrough session to catch progression blockers.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Weekly sync — sprint kickoff.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Refactored quest state machine.",
+  "hours": 4.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "CI/CD",
+  "description": "Set up automated build artifact uploads.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Prototyped rubber-band AI difficulty scaling.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Sprint planning — next sprint goals.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Revised tutorial flow pacing.",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read Game Programming Patterns ch. 12–14.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Audio",
+  "description": "Integrated engine rev sounds with speed curve.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Fixed mobile layout on showcase cards.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Added environmental storytelling object interactions.",
+  "hours": 4.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Wrote devlog post for Starfall Odyssey progress.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Ran full race regression suite after AI changes.",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Bugfixing",
+  "description": "Fixed NPC dialogue looping after area reload.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added character select animations.",
+  "hours": 4.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Watched GDC talk on procedural level design.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed enemy AI behavior tree implementation.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Migrated CI runner to new hosted environment.",
+  "hours": 3.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented save file versioning and migration.",
+  "hours": 4.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Design",
+  "description": "Designed three new power-up concepts with stats.",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Completed ECS refactor exercise project.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Mid-sprint check-in.",
+  "hours": 1.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Cut shader variant count, reduced GPU memory.",
+  "hours": 3.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Mixed and balanced boss music loop.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Added blog RSS feed and sitemap.",
+  "hours": 2.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Networked power-up activation and effects.",
+  "hours": 5.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Built cutscene director component.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Prepared monthly expense report.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Fixed ghost replay desync on high-speed sections.",
+  "hours": 3.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Explored Bevy ECS for side project research.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Testing",
+  "description": "Tested save migration across 4 file versions.",
+  "hours": 2.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Prepped social media kit for Nebula Kart reveal.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Implemented online leaderboard backend hooks.",
+  "hours": 4.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Balanced loot table drop rates for mid-game.",
+  "hours": 2.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Sprint retrospective.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Polished kart selection UI animations.",
+  "hours": 3.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Added localization string extraction tooling.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Launched devlog section to production.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Full playtest of four-player online session.",
+  "hours": 3.0
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Read papers on procedural terrain generation.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Finalized main theme arrangement.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Added coverage gate to pull request checks.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Batched network update packets to reduce calls.",
+  "hours": 3.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Code Review",
+  "description": "Reviewed and merged localization PR.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Implemented match replay sharing system.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Sprint planning — milestone goals.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Wired localization strings into UI components.",
+  "hours": 3.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Completed Rust async/await mini-project.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Tested replay sharing end-to-end on two clients.",
+  "hours": 2.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Planned final act boss encounter sequence.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Scheduled next month's content calendar.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Added friend invite flow to lobby screen.",
+  "hours": 4.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Built final boss multi-phase state machine.",
+  "hours": 5.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Added trailer embed to homepage.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Bugfixing",
+  "description": "Fixed friend lobby disconnect crash on exit.",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Watched GDC vault talk on boss design patterns.",
+  "hours": 1.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Mid-sprint check-in.",
+  "hours": 1.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Recorded and integrated final boss voice lines.",
+  "hours": 3.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Polished results screen with animated podium.",
+  "hours": 4.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Finance",
+  "description": "Quarterly financial review and budget planning.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Testing",
+  "description": "Playtested final boss across all difficulty modes.",
+  "hours": 3.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Reviewed notes on game localization pipelines.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Optimization",
+  "description": "Frame pacing fixes for 60fps on target hardware.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "SEO audit and metadata fixes.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented credits screen and roll sequence.",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "CI/CD",
+  "description": "Automated release build tagging on main merge.",
+  "hours": 2.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Code Review",
+  "description": "Reviewed online lobby and matchmaking PRs.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Design",
+  "description": "Finalized map layout and fast-travel points.",
+  "hours": 3.0
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Development",
+  "description": "Integrated analytics hooks for race events.",
+  "hours": 3.5
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Meetings",
+  "description": "Sprint retrospective — mid-milestone.",
+  "hours": 1.5
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Fixed localization fallback for missing strings.",
+  "hours": 2.5
+ },
+ {
+  "project": "Personal Growth",
+  "category": "Learning",
+  "description": "Explored Steam Deck deployment checklist.",
+  "hours": 1.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Testing",
+  "description": "Analytics event validation and smoke test.",
+  "hours": 2.5
+ },
+ {
+  "project": "Studio Website",
+  "category": "Development",
+  "description": "Published monthly devlog post.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Audio",
+  "description": "Mixed and exported all cutscene music stems.",
+  "hours": 3.0
+ },
+ {
+  "project": "Studio Ops",
+  "category": "Marketing",
+  "description": "Drafted announcement for Nebula Kart closed beta.",
+  "hours": 2.0
+ },
+ {
+  "project": "Starfall Odyssey",
+  "category": "Development",
+  "description": "Implemented save slot selection screen.",
+  "hours": 3.5
+ },
+ {
+  "project": "Nebula Kart",
+  "category": "Meetings",
+  "description": "Sprint kickoff — final stretch planning.",
+  "hours": 3.0
+ }
+]
