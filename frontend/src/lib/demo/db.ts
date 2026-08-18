@@ -3,7 +3,11 @@ import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { get, set, del } from 'idb-keyval';
 import { base } from '$app/paths';
 
-const STORAGE_KEY = 'timelog-demo-db-v1';
+// Bump the version whenever the tracked seed changes shape or content in a way
+// visitors should pick up (v2: generated full-year seed + date rotation).
+// Older keys are deleted on load so stale copies don't linger in IndexedDB.
+const STORAGE_KEY = 'timelog-demo-db-v2';
+const LEGACY_KEYS = ['timelog-demo-db-v1'];
 
 let SQL: SqlJsStatic | null = null;
 let dbInstance: Database | null = null;
@@ -13,6 +17,7 @@ async function load(): Promise<Database> {
 	if (!SQL) {
 		SQL = await initSqlJs({ locateFile: () => sqlWasmUrl });
 	}
+	await Promise.all(LEGACY_KEYS.map((k) => del(k).catch(() => undefined)));
 	const stored = await get<Uint8Array>(STORAGE_KEY);
 	if (stored) {
 		return new SQL.Database(stored);
