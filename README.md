@@ -7,6 +7,7 @@
 
 * [How it works](#how-it-works)
 * [Installation and pre-requisites](#installation-and-pre-requisites)
+* [Hosted Demo (browser-only)](#hosted-demo-browser-only)
 * [Dashboard](#dashboard)
 * [Log Time](#log-time)
 * [Live Timer](#live-timer)
@@ -457,3 +458,4 @@ You can also import directly via the API:
 curl -X POST http://localhost:8888/import -F "file=@timelog-2026-04-28.csv"
 # {"imported": 241}
 ```
+
