@@ -16,10 +16,11 @@
   <div class="setting-info">
     <label for="ai-toggle">Enable AI Sync</label>
     <p class="hint">
-      AI Sync reads your local Claude Code session history and suggests timelog entries.
-      It is currently a <strong>local-only</strong> feature — the API container needs
-      direct access to <code>~/.claude</code> on this machine. When team mode lands later,
-      this same toggle will become an org-level feature flag.
+      AI Sync reads your local AI coding-assistant session history (Claude Code,
+      Cursor) and suggests timelog entries. It is currently a <strong>local-only</strong>
+      feature — the API container needs direct access to <code>~/.claude</code> and/or
+      <code>~/.cursor</code> on this machine. When team mode lands later, this same
+      toggle will become an org-level feature flag.
     </p>
   </div>
   <div class="setting-control">
@@ -31,6 +32,57 @@
       aria-checked={settings.aiSyncEnabled}
       aria-label="Enable AI Sync"
       onclick={() => settings.aiSyncEnabled = !settings.aiSyncEnabled}
+      type="button"
+    >
+      <span class="knob"></span>
+    </button>
+  </div>
+</div>
+
+<div class="sub-row" class:disabled={!settings.aiSyncEnabled}>
+  <div class="setting-info">
+    <label for="claude-toggle">Claude Code</label>
+    <p class="hint">
+      Reads <code>~/.claude/history.jsonl</code> + per-session JSONL. Mount:
+      <code>~/.claude:/root/.claude:ro</code>.
+    </p>
+  </div>
+  <div class="setting-control">
+    <button
+      id="claude-toggle"
+      class="toggle"
+      class:on={settings.claudeSourceEnabled && settings.aiSyncEnabled}
+      role="switch"
+      aria-checked={settings.claudeSourceEnabled}
+      aria-label="Enable Claude Code source"
+      onclick={() => settings.claudeSourceEnabled = !settings.claudeSourceEnabled}
+      disabled={!settings.aiSyncEnabled}
+      type="button"
+    >
+      <span class="knob"></span>
+    </button>
+  </div>
+</div>
+
+<div class="sub-row" class:disabled={!settings.aiSyncEnabled}>
+  <div class="setting-info">
+    <label for="cursor-toggle">Cursor</label>
+    <p class="hint">
+      Reads <code>~/.cursor/ai-tracking/ai-code-tracking.db</code> (Linux only). Mount:
+      <code>~/.cursor:/root/.cursor:ro</code>. Hours from both sources merge as a single
+      union of activity intervals — no double-counting.
+    </p>
+  </div>
+  <div class="setting-control">
+    <button
+      id="cursor-toggle"
+      class="toggle"
+      class:on={settings.cursorSourceEnabled && settings.aiSyncEnabled}
+      role="switch"
+      aria-checked={settings.cursorSourceEnabled}
+      aria-label="Enable Cursor source"
+      onclick={() => settings.cursorSourceEnabled = !settings.cursorSourceEnabled}
+      disabled={!settings.aiSyncEnabled}
       type="button"
     >
       <span class="knob"></span>
@@ -56,13 +108,26 @@
     margin-bottom: 1.5rem;
   }
 
-  .setting-row {
+  .setting-row,
+  .sub-row {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 2rem;
     padding: 1.25rem 0;
     border-bottom: 1px solid var(--border-subtle);
     align-items: start;
+  }
+
+  .sub-row {
+    padding-left: 1.5rem;
+  }
+
+  .sub-row.disabled {
+    opacity: 0.45;
+  }
+
+  .toggle:disabled {
+    cursor: not-allowed;
   }
 
   .setting-info label {

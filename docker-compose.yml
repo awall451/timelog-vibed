@@ -11,6 +11,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ~/.claude:/root/.claude:ro
       - ~/.local/share/claude:/claude-app:ro
+      - ~/.cursor:/root/.cursor:ro
 
   frontend:
     build: ./frontend

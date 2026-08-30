@@ -27,12 +27,15 @@ export interface NewEntry {
   date?: string;
 }
 
+export type AiSource = 'claude' | 'cursor';
+
 export interface ProposedEntry {
   project: string;
   category: string;
   description: string;
   hours: number;
   already_exists: boolean;
+  sources: AiSource[];
 }
 
 async function get<T>(path: string): Promise<T> {
@@ -97,6 +100,14 @@ const realApi = {
     sync: (date: string, entries: NewEntry[]) =>
       post<{ inserted: number }>('/claude/sync', { date, entries }),
   },
+  aiSync: {
+    preview: (date: string, sources: AiSource[]) =>
+      get<{ date: string; entries: ProposedEntry[] }>(
+        `/ai-sync/preview?date=${date}&sources=${sources.join(',')}`,
+      ),
+    sync: (date: string, entries: NewEntry[]) =>
+      post<{ inserted: number }>('/ai-sync/sync', { date, entries }),
+  },
 };
 
 // Avoid top-level await so older Safari (iOS < 15) parses this module.
@@ -149,5 +160,9 @@ export const api: typeof realApi = {
   claude: {
     preview: lazy(['claude', 'preview']),
     sync:    lazy(['claude', 'sync']),
+  },
+  aiSync: {
+    preview: lazy(['aiSync', 'preview']),
+    sync:    lazy(['aiSync', 'sync']),
   },
 };

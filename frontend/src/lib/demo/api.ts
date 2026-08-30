@@ -1,8 +1,8 @@
 import type { Database } from 'sql.js';
 import { getDb, persist } from './db';
-import type { Entry, NewEntry, ProjectSum, CategorySum, ProposedEntry } from '../api';
+import type { Entry, NewEntry, ProjectSum, CategorySum, ProposedEntry, AiSource } from '../api';
 
-export type { Entry, NewEntry, ProjectSum, CategorySum, ProposedEntry };
+export type { Entry, NewEntry, ProjectSum, CategorySum, ProposedEntry, AiSource };
 
 function rows<T>(db: Database, sql: string, params: (string | number | null)[] = []): T[] {
 	const stmt = db.prepare(sql);
@@ -197,6 +197,17 @@ export const api = {
 	},
 	claude: {
 		preview: async (_date: string): Promise<{ date: string; entries: ProposedEntry[] }> => {
+			throw new Error('AI Sync is a local-only feature. Run timelog locally to enable.');
+		},
+		sync: async (_date: string, _entries: NewEntry[]): Promise<{ inserted: number }> => {
+			throw new Error('AI Sync is a local-only feature. Run timelog locally to enable.');
+		}
+	},
+	aiSync: {
+		preview: async (
+			_date: string,
+			_sources: AiSource[]
+		): Promise<{ date: string; entries: ProposedEntry[] }> => {
 			throw new Error('AI Sync is a local-only feature. Run timelog locally to enable.');
 		},
 		sync: async (_date: string, _entries: NewEntry[]): Promise<{ inserted: number }> => {

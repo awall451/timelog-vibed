@@ -5,8 +5,8 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from timelog import service
-from timelog import claude_service
-from timelog.claude_service import build_proposed_entries_with_ai
+from timelog import ai_sync
+from timelog.ai_sync import build_proposed_entries_with_ai
 
 app = FastAPI(title="Timelog API")
 
@@ -149,38 +149,67 @@ def import_csv(file: UploadFile = File(...)):
     return {"imported": count}
 
 
-# ── Claude AI Sync ─────────────────────────────────────────────────────────
+# ── AI Sync ────────────────────────────────────────────────────────────────
 
-class ClaudeEntry(BaseModel):
+VALID_SOURCES = {"claude", "cursor"}
+
+_MOUNT_HINTS = {
+    "claude": '"- ~/.claude:/root/.claude:ro"',
+    "cursor": '"- ~/.cursor:/root/.cursor:ro"',
+}
+
+
+class AiSyncEntry(BaseModel):
     project: str
     category: str
     description: str = ""
     hours: float = Field(gt=0)
 
 
-class ClaudeSyncRequest(BaseModel):
+class AiSyncRequest(BaseModel):
     date: str
-    entries: list[ClaudeEntry]
+    entries: list[AiSyncEntry]
 
 
-@app.get("/claude/preview")
-def claude_preview(date: str | None = None):
-    date_str = date or datetime.now().strftime("%Y-%m-%d")
+# Legacy aliases — kept so external callers using /claude/* don't break.
+ClaudeEntry = AiSyncEntry
+ClaudeSyncRequest = AiSyncRequest
+
+
+def _parse_sources(raw: str | None) -> list[str]:
+    if not raw:
+        return ["claude", "cursor"]
+    parts = [p.strip().lower() for p in raw.split(",") if p.strip()]
+    invalid = [p for p in parts if p not in VALID_SOURCES]
+    if invalid:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid source(s): {invalid}. Allowed: {sorted(VALID_SOURCES)}",
+        )
+    return parts or ["claude", "cursor"]
+
+
+def _run_preview(date_str: str, sources: list[str]) -> dict:
     try:
-        entries = build_proposed_entries_with_ai(date_str)
-    except FileNotFoundError:
+        entries = build_proposed_entries_with_ai(date_str, sources)
+    except FileNotFoundError as exc:
+        missing = str(exc)
+        which = "claude" if ".claude" in missing else "cursor" if ".cursor" in missing else None
+        hint = _MOUNT_HINTS.get(which, "")
         raise HTTPException(
             status_code=503,
             detail=(
-                "Claude history not found. "
-                "Mount ~/.claude into the container by adding "
-                "\"- ~/.claude:/root/.claude:ro\" to the api volumes in docker-compose.yml, "
-                "then run tlstart to rebuild."
+                f"AI source history not found: {missing}. "
+                f"Mount the host directory into the api container "
+                f"(add {hint} to the api volumes in docker-compose.yml) "
+                f"and run tlstart to rebuild."
             ),
         )
-    new_entries, skipped = claude_service.check_duplicates(entries)
-    for e in skipped:
-        e.already_exists = True
+    _, skipped = ai_sync.check_duplicates(entries)
+    skipped_keys = {(e.project, e.date) for e in skipped}
+    for e in entries:
+        if (e.project, e.date) in skipped_keys:
+            e.already_exists = True
     return {"date": date_str, "entries": [
         {
             "project": e.project,
@@ -188,16 +217,35 @@ def claude_preview(date: str | None = None):
             "description": e.description,
             "hours": e.hours,
             "already_exists": e.already_exists,
+            "sources": e.sources,
         }
         for e in entries
     ]}
 
 
-@app.post("/claude/sync")
-def claude_sync(body: ClaudeSyncRequest):
+@app.get("/ai-sync/preview")
+def ai_sync_preview(date: str | None = None, sources: str | None = None):
+    date_str = date or datetime.now().strftime("%Y-%m-%d")
+    return _run_preview(date_str, _parse_sources(sources))
+
+
+@app.post("/ai-sync/sync")
+def ai_sync_sync(body: AiSyncRequest):
     for e in body.entries:
         service.add_entry(e.project, e.category, e.description, e.hours, body.date)
     return {"inserted": len(body.entries)}
+
+
+# Legacy endpoints — pre-multi-source clients. New work should use /ai-sync/*.
+@app.get("/claude/preview")
+def claude_preview(date: str | None = None):
+    date_str = date or datetime.now().strftime("%Y-%m-%d")
+    return _run_preview(date_str, ["claude"])
+
+
+@app.post("/claude/sync")
+def claude_sync(body: ClaudeSyncRequest):
+    return ai_sync_sync(body)
 
 
 def run():

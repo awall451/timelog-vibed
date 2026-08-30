@@ -214,7 +214,33 @@ invoices(id, org_id, project_id, period_start, period_end, pdf_path, generated_a
 
 ### AI Sync / `tlclaude` — multi-node strategy (TBD)
 
-**Today (single mode):** The AI Sync page and `tlclaude` CLI both depend on the API container having direct read access to the host's `~/.claude` directory (session JSONL files) and `~/.local/share/claude` (the `claude` binary). Both are bind-mounted in `docker-compose.yml`. This is the fast path and works perfectly for one user on one machine.
+**Today (single mode):** The AI Sync page and `tlclaude` CLI read two sources on Linux:
+
+1. **Claude Code** — `~/.claude/history.jsonl` + per-session JSONL in `~/.claude/projects/`, plus the `claude` binary at `~/.local/share/claude` (used for AI category/description inference).
+2. **Cursor** — `~/.cursor/ai-tracking/ai-code-tracking.db` (SQLite). `ai_code_hashes` provides per-codegen timestamps + absolute `fileName` paths; the longest common path prefix per `conversationId` is taken as the workspace. Agent transcripts at `~/.cursor/projects/<slug>/agent-transcripts/<conv-id>/*.jsonl` provide user-message excerpts for inference. Cursor has no per-message timestamps in structured form, so active hours are derived from the `ai_code_hashes.timestamp` stream with the same 30-minute idle-gap rule used for Claude.
+
+When both sources are enabled, results are **merged per project per day** by union of activity intervals — overlapping minutes count once (single 30-min idle-gap pass over the combined timestamp set).
+
+Mounts in `docker-compose.yml` (api service):
+
+```yaml
+- ~/.claude:/root/.claude:ro
+- ~/.local/share/claude:/claude-app:ro
+- ~/.cursor:/root/.cursor:ro
+```
+
+macOS/Windows Cursor paths exist (`~/Library/Application Support/Cursor/...` and `%APPDATA%\Cursor\...`) but are not active yet — Linux only for this pass. Stubs noted in `timelog/ai_sync/sources/cursor.py`.
+
+Source code lives under `timelog/ai_sync/`:
+- `aggregator.py` — merges sources, computes active hours, runs `ai_infer`.
+- `sources/claude.py`, `sources/cursor.py` — per-source loaders, both return a normalized `RawSession`.
+- `ai_infer.py` — calls the Claude CLI for category/description inference (used by both sources).
+
+API endpoints: `GET /ai-sync/preview?date=YYYY-MM-DD&sources=claude,cursor` and `POST /ai-sync/sync`. The legacy `/claude/preview` and `/claude/sync` are kept as aliases (fixed to `sources=["claude"]`) so external callers don't break.
+
+CLI: `tlclaude {sessions,preview,sync} --source claude|cursor|all` (default `all`).
+
+Settings: master toggle `aiSyncEnabled` plus per-source `claudeSourceEnabled` (default on) and `cursorSourceEnabled` (default off — opt-in).
 
 **The problem in multi mode:** Each user's Claude Code session data lives on their own laptop. A central API server has no way to read it. We need to design how this feature works — or whether it works — for hosted/team deployments before building it.
 
